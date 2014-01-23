@@ -50,7 +50,7 @@ QAuthApp::QAuthApp(int& argc, char** argv)
     if ((pos = args.indexOf("--socket")) >= 0) {
         if (pos >= args.length() - 1) {
             qCritical() << "This application is not supposed to be executed manually";
-            exit(1);
+            exit(OTHER_ERROR);
         }
         server = args[pos + 1];
         args.removeAt(pos);
@@ -60,7 +60,7 @@ QAuthApp::QAuthApp(int& argc, char** argv)
     if ((pos = args.indexOf("--id")) >= 0) {
         if (pos >= args.length() - 1) {
             qCritical() << "This application is not supposed to be executed manually";
-            exit(1);
+            exit(OTHER_ERROR);
         }
         id = QString(args[pos + 1]).toLongLong();
         args.removeAt(pos);
@@ -70,7 +70,7 @@ QAuthApp::QAuthApp(int& argc, char** argv)
     if ((pos = args.indexOf("--start")) >= 0) {
         if (pos >= args.length() - 1) {
             qCritical() << "This application is not supposed to be executed manually";
-            exit(1);
+            exit(OTHER_ERROR);
         }
         m_sessionPath = args[pos + 1];
         args.removeAt(pos);
@@ -79,7 +79,7 @@ QAuthApp::QAuthApp(int& argc, char** argv)
 
     if (server.isEmpty() || id <= 0) {
         qCritical() << "This application is not supposed to be executed manually";
-        exit(1);
+        exit(OTHER_ERROR);
     }
 
     m_socket->connectToServer(server, QIODevice::ReadWrite | QIODevice::Unbuffered);

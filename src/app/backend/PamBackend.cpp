@@ -20,7 +20,7 @@
 
 #include "PamBackend.h"
 #include "PamHandle.h"
-#include <app/QAuthApp.h>
+#include "app/QAuthApp.h"
 
 #include <QtCore/QString>
 #include <QDebug>
@@ -30,26 +30,24 @@
 PamBackend::PamBackend(QAuthApp *parent)
         : Backend(parent)
         , m_pam(new PamHandle(this)) {
-    m_pam->start("sudo");
-}
-
-void PamBackend::start() {
-
+    if (!m_pam->start("sudo")) {
+        m_app->error(m_pam->errorString());
+        m_app->exit(QAuthApp::AUTH_ERROR);
+    }
 }
 
 void PamBackend::authenticate() {
     if (!m_pam->authenticate()) {
         m_app->error(m_pam->errorString());
-        m_app->quit();
+        m_app->exit(QAuthApp::AUTH_ERROR);
     }
 }
 
 void PamBackend::openSession() {
-
-}
-
-void PamBackend::end() {
-
+    if (!m_pam->openSession()) {
+        m_app->error(m_pam->errorString());
+        m_app->exit(QAuthApp::AUTH_ERROR);
+    }
 }
 
 int PamBackend::converse(int n, const struct pam_message **msg, struct pam_response **resp) {

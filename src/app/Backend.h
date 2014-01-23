@@ -35,10 +35,8 @@ public:
     static Backend *get(QAuthApp *parent);
 
 public slots:
-    virtual void start() = 0;
     virtual void authenticate() = 0;
     virtual void openSession() = 0;
-    virtual void end() = 0;
 
 protected:
     Backend(QAuthApp *parent);

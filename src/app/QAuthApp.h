@@ -33,6 +33,12 @@ public:
     QAuthApp(int& argc, char** argv);
     virtual ~QAuthApp();
 
+    enum RetVal {
+        AUTH_SUCCESS = 0,
+        AUTH_ERROR,
+        OTHER_ERROR
+    };
+
 public slots:
     QByteArray prompt(const QString &message, bool echo);
     void info(const QString &message);
