@@ -151,6 +151,8 @@ bool PamHandle::start(const char *service_name) {
 }
 
 bool PamHandle::end(int flags) {
+    if (!m_handle)
+        return false;
     m_result = pam_end(m_handle, m_result | flags);
     if (m_result != PAM_SUCCESS) {
         qWarning() << " AUTH: PAM: end:" << pam_strerror(m_handle, m_result);
@@ -159,6 +161,7 @@ bool PamHandle::end(int flags) {
     else {
         qDebug() << " AUTH: PAM: Ended.";
     }
+    m_handle = NULL;
     return true;
 }
 
