@@ -186,7 +186,7 @@ private:
 
     int m_silent { 0 }; ///< flag mask for silence of the contained calls
 
-    struct pam_conv m_converse; ///< the current conversation
+    struct pam_conv m_conv; ///< the current conversation
     pam_handle_t *m_handle { nullptr }; ///< the actual PAM handle
     int m_result { 0 }; ///< PAM result
 };

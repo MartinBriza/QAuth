@@ -139,8 +139,7 @@ int PamHandle::converse(int n, const struct pam_message **msg, struct pam_respon
 }
 
 bool PamHandle::start(const char *service_name) {
-    static struct pam_conv conv = { &PamHandle::converse, m_backend };
-    m_result = pam_start(service_name, NULL, &conv, &m_handle);
+    m_result = pam_start(service_name, NULL, &m_conv, &m_handle);
     if (m_result != PAM_SUCCESS) {
         qWarning() << " AUTH: PAM: start" << pam_strerror(m_handle, m_result);
         return false;
@@ -170,7 +169,7 @@ QString PamHandle::errorString() {
 PamHandle::PamHandle(PamBackend *parent)
         : m_backend(parent) {
     // create context
-    m_converse = { &PamHandle::converse, parent };
+    m_conv = { &PamHandle::converse, parent };
 }
 
 PamHandle::~PamHandle() {
