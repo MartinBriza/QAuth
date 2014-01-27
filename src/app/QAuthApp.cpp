@@ -117,7 +117,7 @@ void QAuthApp::error(const QString& message) {
     QDataStream str(m_socket);
     str << Msg::ERROR << message;
     m_socket->flush();
-    m_socket->waitForReadyRead();
+    m_socket->waitForReadyRead(-1);
     str >> m;
     if (m != ERROR)
         qCritical() << "Received a wrong opcode instead of ERROR:" << m;
@@ -128,7 +128,7 @@ void QAuthApp::info(const QString& message) {
     QDataStream str(m_socket);
     str << Msg::INFO << message;
     m_socket->flush();
-    m_socket->waitForReadyRead();
+    m_socket->waitForReadyRead(-1);
     str >> m;
     if (m != INFO)
         qCritical() << "Received a wrong opcode instead of INFO:" << m;
@@ -140,7 +140,7 @@ QByteArray QAuthApp::prompt(const QString& message, bool echo) {
     QDataStream str(m_socket);
     str << Msg::PROMPT << message << echo;
     m_socket->flush();
-    m_socket->waitForReadyRead();
+    m_socket->waitForReadyRead(-1);
     str >> m >> response;
     qDebug() << "Received a response" << response;
     if (m != PROMPT) {
@@ -156,7 +156,7 @@ QProcessEnvironment QAuthApp::requestEnvironment() {
     QDataStream str(m_socket);
     str << Msg::ENVIRONMENT;
     m_socket->flush();
-    m_socket->waitForReadyRead();
+    m_socket->waitForReadyRead(-1);
     str >> m >> response;
     qDebug() << "Received a response" << response.toStringList();
     if (m != ENVIRONMENT) {
