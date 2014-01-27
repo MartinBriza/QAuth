@@ -27,7 +27,6 @@
 class Backend;
 class Session;
 class QLocalSocket;
-class QSocketNotifier;
 class QAuthApp : public QCoreApplication
 {
     Q_OBJECT
@@ -51,9 +50,11 @@ public slots:
     QProcessEnvironment requestEnvironment();
 
 private slots:
-    void newData();
+    void setUp();
+    void doAuth();
 
 private:
+    qint64 m_id { -1 };
     Backend *m_backend { nullptr };
     Session *m_session { nullptr };
     QLocalSocket *m_socket { nullptr };

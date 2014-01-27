@@ -39,10 +39,12 @@ QAuthApp::QAuthApp(int& argc, char** argv)
         , m_backend(Backend::get(this))
         , m_session(new Session(this))
         , m_socket(new QLocalSocket(this)) {
-    connect(m_socket, SIGNAL(readyRead()), this, SLOT(newData()));
+    QTimer::singleShot(0, this, SLOT(setUp()));
+}
+
+void QAuthApp::setUp() {
     QStringList args = QCoreApplication::arguments();
     QString server;
-    qint64 id = -1;
     int pos;
 
     if ((pos = args.indexOf("--socket")) >= 0) {
@@ -51,8 +53,6 @@ QAuthApp::QAuthApp(int& argc, char** argv)
             exit(OTHER_ERROR);
         }
         server = args[pos + 1];
-        args.removeAt(pos);
-        args.removeAt(pos);
     }
 
     if ((pos = args.indexOf("--id")) >= 0) {
@@ -60,9 +60,7 @@ QAuthApp::QAuthApp(int& argc, char** argv)
             qCritical() << "This application is not supposed to be executed manually";
             exit(OTHER_ERROR);
         }
-        id = QString(args[pos + 1]).toLongLong();
-        args.removeAt(pos);
-        args.removeAt(pos);
+        m_id = QString(args[pos + 1]).toLongLong();
     }
 
     if ((pos = args.indexOf("--start")) >= 0) {
@@ -71,20 +69,20 @@ QAuthApp::QAuthApp(int& argc, char** argv)
             exit(OTHER_ERROR);
         }
         m_sessionPath = args[pos + 1];
-        args.removeAt(pos);
-        args.removeAt(pos);
     }
 
-    if (server.isEmpty() || id <= 0) {
+    if (server.isEmpty() || m_id <= 0) {
         qCritical() << "This application is not supposed to be executed manually";
         exit(OTHER_ERROR);
     }
 
+    connect(m_socket, SIGNAL(connected()), this, SLOT(doAuth()));
     m_socket->connectToServer(server, QIODevice::ReadWrite | QIODevice::Unbuffered);
-    if (!m_socket->waitForConnected())
-        qCritical() << "Couldn't connect!";
+}
+
+void QAuthApp::doAuth() {
     QDataStream str(m_socket);
-    str << Msg::HELLO << id;
+    str << Msg::HELLO << m_id;
     if (str.status() != QDataStream::Ok)
         qCritical() << "Couldn't write initial message:" << str.status();
 
@@ -153,10 +151,6 @@ Session *QAuthApp::session() {
 
 QAuthApp::~QAuthApp() {
 
-}
-
-void QAuthApp::newData() {
-    
 }
 
 int main(int argc, char** argv) {
