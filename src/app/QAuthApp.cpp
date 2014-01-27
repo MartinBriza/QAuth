@@ -51,6 +51,7 @@ void QAuthApp::setUp() {
         if (pos >= args.length() - 1) {
             qCritical() << "This application is not supposed to be executed manually";
             exit(OTHER_ERROR);
+            return;
         }
         server = args[pos + 1];
     }
@@ -59,6 +60,7 @@ void QAuthApp::setUp() {
         if (pos >= args.length() - 1) {
             qCritical() << "This application is not supposed to be executed manually";
             exit(OTHER_ERROR);
+            return;
         }
         m_id = QString(args[pos + 1]).toLongLong();
     }
@@ -67,6 +69,7 @@ void QAuthApp::setUp() {
         if (pos >= args.length() - 1) {
             qCritical() << "This application is not supposed to be executed manually";
             exit(OTHER_ERROR);
+            return;
         }
         m_sessionPath = args[pos + 1];
     }
@@ -74,6 +77,7 @@ void QAuthApp::setUp() {
     if (server.isEmpty() || m_id <= 0) {
         qCritical() << "This application is not supposed to be executed manually";
         exit(OTHER_ERROR);
+        return;
     }
 
     connect(m_socket, SIGNAL(connected()), this, SLOT(doAuth()));
@@ -86,11 +90,15 @@ void QAuthApp::doAuth() {
     if (str.status() != QDataStream::Ok)
         qCritical() << "Couldn't write initial message:" << str.status();
 
-    if (!m_backend->authenticate())
+    if (!m_backend->authenticate()) {
         exit(AUTH_ERROR);
+        return;
+    }
 
-    if (!m_sessionPath.isEmpty() && !m_backend->openSession())
+    if (!m_sessionPath.isEmpty() && !m_backend->openSession()) {
         exit(SESSION_ERROR);
+        return;
+    }
 
     exit(AUTH_SUCCESS);
 }

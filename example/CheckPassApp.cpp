@@ -27,36 +27,30 @@
 class CheckPass : public QAuth {
     Q_OBJECT
 public:
-    CheckPass(QObject *parent);
-
+    CheckPass(QObject *parent) : QAuth(parent) {}
 protected:
-    virtual QByteArray prompt(const QString &message, bool echo = false);
+    virtual QByteArray prompt(const QString &message, bool echo = false) {
+        std::string input;
+        std::cout << message.toStdString();
+        std::cin >> input;
+        return input.c_str();
+    }
 };
-
-CheckPass::CheckPass(QObject *parent)
-        : QAuth(parent) {
-
-}
-
-QByteArray CheckPass::prompt(const QString& message, bool echo)
-{
-    std::string password;
-    std::cout << message.toStdString();
-    std::cin >> password;
-    return password.c_str();
-}
-
 
 CheckPassApp::CheckPassApp(int& argc, char** argv)
         : QCoreApplication(argc, argv)
         , m_auth(new CheckPass(this)) {
-    //m_auth->setVerbosity(true);
-    connect(m_auth, SIGNAL(finished(int)), this, SLOT(quit()));
+    m_auth->setVerbosity(true);
+    connect(m_auth, SIGNAL(finished(int)), this, SLOT(handleResult(int)));
     m_auth->start();
 }
 
 CheckPassApp::~CheckPassApp() {
 
+}
+
+void CheckPassApp::handleResult(int code) {
+    exit(code);
 }
 
 int main(int argc, char** argv) {

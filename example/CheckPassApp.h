@@ -33,6 +33,8 @@ public:
 
 private:
     CheckPass *m_auth;
+private slots:
+    void handleResult(int code);
 };
 
 #endif // CHECKPASSAPP_H
