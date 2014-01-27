@@ -40,13 +40,10 @@ QAuthApp::QAuthApp(int& argc, char** argv)
         , m_session(new Session(this))
         , m_socket(new QLocalSocket(this)) {
     connect(m_socket, SIGNAL(readyRead()), this, SLOT(newData()));
-    QStringList args;
+    QStringList args = QCoreApplication::arguments();
     QString server;
     qint64 id = -1;
     int pos;
-
-    for (int i = 1; i < argc; i++)
-        args << argv[i];
 
     if ((pos = args.indexOf("--socket")) >= 0) {
         if (pos >= args.length() - 1) {
@@ -94,7 +91,7 @@ QAuthApp::QAuthApp(int& argc, char** argv)
     if (!m_backend->authenticate())
         exit(AUTH_ERROR);
 
-    if (!m_backend->openSession())
+    if (!m_sessionPath.isEmpty() && !m_backend->openSession())
         exit(SESSION_ERROR);
 
     exit(AUTH_SUCCESS);
