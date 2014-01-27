@@ -24,6 +24,7 @@
 #include <QtCore/QCoreApplication>
 
 class MinimalDM;
+class QProcess;
 class MinimalDMApp : public QCoreApplication
 {
     Q_OBJECT
@@ -31,10 +32,14 @@ public:
     MinimalDMApp(int& argc, char** argv);
     virtual ~MinimalDMApp();
 
-private:
-    MinimalDM *m_auth;
 private slots:
+    void startX();
     void handleResult(int code);
+
+private:
+
+    MinimalDM *m_auth;
+    QProcess *m_displayServer { nullptr };
 };
 
 #endif // MINIMALDMAPP_H

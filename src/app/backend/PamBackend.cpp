@@ -74,7 +74,7 @@ bool PamBackend::openSession() {
         m_app->error(m_pam->errorString());
         return false;
     }
-    return true;
+    return Backend::openSession();
 }
 
 int PamBackend::converse(int n, const struct pam_message **msg, struct pam_response **resp) {

@@ -21,6 +21,8 @@
 #include "MinimalDMApp.h"
 #include <QAuth>
 #include <QDebug>
+#include <QFile>
+#include <QTimer>
 #include <iostream>
 #include <string>
 
@@ -34,11 +36,6 @@ protected:
         QProcessEnvironment env;
         env.insert("PATH", "/bin:/usr/bin:/usr/local/bin:/usr/local/sbin:/usr/sbin");
         env.insert("DISPLAY", display);
-        // if I only knew how to emulate this, let's hope it will work nevertheless
-//         env.insert("XDG_SEAT", seat->name());
-//         env.insert("XDG_SEAT_PATH", daemonApp->displayManager()->seatPath(seat->name()));
-//         env.insert("XDG_SESSION_PATH", daemonApp->displayManager()->sessionPath(process->name()));
-//         env.insert("XDG_VTNR", QString::number(display->terminalId()));
         env.insert("DESKTOP_SESSION", "testsession");
         env.insert("GDMSESSION", "testsession");
         return env;
@@ -50,12 +47,15 @@ protected:
 
 MinimalDMApp::MinimalDMApp(int& argc, char** argv)
         : QCoreApplication(argc, argv)
-        , m_auth(new MinimalDM(this)) {
+        , m_auth(new MinimalDM(this))
+        , m_displayServer(new QProcess(this)) {
     m_auth->setVerbosity(true);
     m_auth->setAutologin(true);
     m_auth->setExecutable("/usr/bin/startkde");
     connect(m_auth, SIGNAL(finished(int)), this, SLOT(handleResult(int)));
-    m_auth->start();
+
+    QTimer::singleShot(0, this, SLOT(startX()));
+    QTimer::singleShot(0, m_auth, SLOT(start()));
 }
 
 MinimalDMApp::~MinimalDMApp() {
@@ -64,6 +64,19 @@ MinimalDMApp::~MinimalDMApp() {
 
 void MinimalDMApp::handleResult(int code) {
     exit(code);
+}
+
+void MinimalDMApp::startX() {
+    for (int i = 0; ; i++) {
+        if (QFile::exists(QString("/tmp/.X%1-lock").arg(i)))
+            continue;
+        m_displayServer->start("/usr/bin/X", {QString(":%1").arg(i)});
+        if (m_displayServer->waitForStarted())
+            m_auth->display = QString(":%1").arg(i);
+        else
+            exit(1);
+        break;
+    }
 }
 
 int main(int argc, char** argv) {
