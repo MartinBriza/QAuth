@@ -22,5 +22,6 @@
 #define CONFIG_H
 
 #define QAUTH_HELPER_PATH "src/QAuthHelper"
+#cmakedefine PAM_FOUND
 
 #endif // CONFIG_H

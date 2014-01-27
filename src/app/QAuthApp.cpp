@@ -19,16 +19,16 @@
  */
 
 #include "QAuthApp.h"
-#include "Messages.h"
+
 #include "Backend.h"
+#include "Messages.h"
+#include "Session.h"
 
 #include <QTimer>
 #include <QFile>
 #include <QDataStream>
 #include <QLocalSocket>
 #include <QDebug>
-#include <QStringList>
-
 
 #include <iostream>
 #include <unistd.h>
@@ -37,6 +37,7 @@
 QAuthApp::QAuthApp(int& argc, char** argv)
         : QCoreApplication(argc, argv)
         , m_backend(Backend::get(this))
+        , m_session(new Session(this))
         , m_socket(new QLocalSocket(this)) {
     connect(m_socket, SIGNAL(readyRead()), this, SLOT(newData()));
     QStringList args;
@@ -89,7 +90,14 @@ QAuthApp::QAuthApp(int& argc, char** argv)
     str << Msg::HELLO << id;
     if (str.status() != QDataStream::Ok)
         qCritical() << "Couldn't write initial message:" << str.status();
-    m_backend->authenticate();
+
+    if (!m_backend->authenticate())
+        exit(AUTH_ERROR);
+
+    if (!m_backend->openSession())
+        exit(SESSION_ERROR);
+
+    exit(AUTH_SUCCESS);
 }
 
 void QAuthApp::error(const QString& message) {
@@ -125,6 +133,25 @@ QByteArray QAuthApp::prompt(const QString& message, bool echo) {
         qCritical() << "Received a wrong opcode instead of PROMPT:" << m;
     }
     return response;
+}
+
+QProcessEnvironment QAuthApp::requestEnvironment() {
+    Msg m;
+    QProcessEnvironment response;
+    QDataStream str(m_socket);
+    str << Msg::ENVIRONMENT;
+    m_socket->waitForReadyRead();
+    str >> m >> response;
+    qDebug() << "Received a response" << response.toStringList();
+    if (m != ENVIRONMENT) {
+        response = QProcessEnvironment();
+        qCritical() << "Received a wrong opcode instead of ENVIRONMENT:" << m;
+    }
+    return response;
+}
+
+Session *QAuthApp::session() {
+    return m_session;
 }
 
 QAuthApp::~QAuthApp() {

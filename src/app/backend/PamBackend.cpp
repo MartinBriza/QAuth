@@ -17,7 +17,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  */
-
 #include "PamBackend.h"
 #include "PamHandle.h"
 #include "app/QAuthApp.h"
@@ -30,24 +29,24 @@
 PamBackend::PamBackend(QAuthApp *parent)
         : Backend(parent)
         , m_pam(new PamHandle(this)) {
-    if (!m_pam->start("sudo")) {
+    if (!m_pam->start("sudo"))
         m_app->error(m_pam->errorString());
-        m_app->exit(QAuthApp::AUTH_ERROR);
-    }
 }
 
-void PamBackend::authenticate() {
+bool PamBackend::authenticate() {
     if (!m_pam->authenticate()) {
         m_app->error(m_pam->errorString());
-        m_app->exit(QAuthApp::AUTH_ERROR);
+        return false;
     }
+    return true;
 }
 
-void PamBackend::openSession() {
+bool PamBackend::openSession() {
     if (!m_pam->openSession()) {
         m_app->error(m_pam->errorString());
-        m_app->exit(QAuthApp::AUTH_ERROR);
+        return false;
     }
+    return true;
 }
 
 int PamBackend::converse(int n, const struct pam_message **msg, struct pam_response **resp) {

@@ -1,6 +1,6 @@
 /*
- * PAM authentication backend
- * Copyright (C) 2013 Martin Bříza <mbriza@redhat.com>
+ * Session process wrapper
+ * Copyright (C) 2014 Martin Bříza <mbriza@redhat.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,30 +17,33 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  */
-#include "config.h"
-#if !defined(PAMBACKEND_H) && defined(PAM_FOUND)
-#define PAMBACKEND_H
 
-#include "../Backend.h"
+#ifndef SESSION_H
+#define SESSION_H
 
 #include <QtCore/QObject>
+#include <QString>
+#include <QProcess>
 
-#include <security/pam_appl.h>
-
-class PamHandle;
-class PamBackend : public Backend
+class QAuthApp;
+class Session : public QProcess
 {
     Q_OBJECT
 public:
-    explicit PamBackend(QAuthApp *parent);
-    int converse(int n, const struct pam_message **msg, struct pam_response **resp);
+    explicit Session(QAuthApp *parent);
+    virtual ~Session();
 
-public slots:
-    virtual bool authenticate();
-    virtual bool openSession();
+    void start();
+
+    void setUser(const QString &user);
+    void setPath(const QString &path);
+
+protected:
+    void setupChildProcess();
 
 private:
-    PamHandle *m_pam;
+    QString m_user { };
+    QString m_path { };
 };
 
-#endif // PAMBACKEND_H
+#endif // SESSION_H

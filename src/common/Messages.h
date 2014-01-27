@@ -22,13 +22,14 @@
 #define MESSAGES_H
 
 #include <QDataStream>
+#include <QProcessEnvironment>
 
 enum Msg {
     HELLO = 1,
     ERROR,
     INFO,
     PROMPT,
-    
+    ENVIRONMENT
 };
 
 inline QDataStream& operator<<(QDataStream &s, const Msg &m) {
@@ -41,6 +42,21 @@ inline QDataStream& operator>>(QDataStream &s, Msg &m) {
     qint32 i;
     s >> i;
     m = Msg(i);
+    return s;
+}
+
+inline QDataStream& operator<<(QDataStream &s, const QProcessEnvironment &m) {
+    s << m.toStringList();
+    return s;
+}
+
+inline QDataStream& operator>>(QDataStream &s, QProcessEnvironment &m) {
+    QStringList l;
+    s >> l;
+    for (QString s : l) {
+        int pos = s.indexOf('=');
+        m.insert(s.left(pos), s.mid(pos + 1));
+    }
     return s;
 }
 

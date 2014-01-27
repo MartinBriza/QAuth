@@ -22,8 +22,10 @@
 #define QAuth_H
 
 #include <QtCore/QCoreApplication>
+#include <QProcessEnvironment>
 
 class Backend;
+class Session;
 class QLocalSocket;
 class QSocketNotifier;
 class QAuthApp : public QCoreApplication
@@ -33,9 +35,12 @@ public:
     QAuthApp(int& argc, char** argv);
     virtual ~QAuthApp();
 
+    Session *session();
+
     enum RetVal {
         AUTH_SUCCESS = 0,
         AUTH_ERROR,
+        SESSION_ERROR,
         OTHER_ERROR
     };
 
@@ -43,12 +48,14 @@ public slots:
     QByteArray prompt(const QString &message, bool echo);
     void info(const QString &message);
     void error(const QString &message);
+    QProcessEnvironment requestEnvironment();
 
 private slots:
     void newData();
 
 private:
     Backend *m_backend { nullptr };
+    Session *m_session { nullptr };
     QLocalSocket *m_socket { nullptr };
     QString m_sessionPath { };
 };

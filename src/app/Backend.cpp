@@ -19,8 +19,12 @@
  */
 
 #include "Backend.h"
+#include "QAuthApp.h"
+
 #include "backend/PamBackend.h"
 #include "backend/PasswdBackend.h"
+#include "Session.h"
+#include <QProcessEnvironment>
 
 Backend::Backend(QAuthApp* parent)
         : QObject()
@@ -29,6 +33,14 @@ Backend::Backend(QAuthApp* parent)
 
 Backend *Backend::get(QAuthApp* parent)
 {
+#ifdef PAM_FOUND
     return new PamBackend(parent);
+#else
+    return new PasswdBackend(parent);
+#endif
+}
+
+bool Backend::openSession() {
+    m_app->session()->start();
 }
 
