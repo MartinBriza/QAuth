@@ -104,6 +104,10 @@ void QAuthApp::doAuth() {
         return;
     }
 
+    if (!m_session->path().isEmpty()) {
+        m_session->setProcessEnvironment(requestEnvironment());
+    }
+
     if (!m_backend->openSession()) {
         exit(SESSION_ERROR);
         return;

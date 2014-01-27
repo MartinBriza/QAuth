@@ -22,6 +22,7 @@
 #define QAUTH_H
 
 #include <QtCore/QObject>
+#include <QProcessEnvironment>
 
 class QAuth : public QObject
 {
@@ -44,6 +45,8 @@ protected:
     virtual QByteArray prompt(const QString &message, bool echo = false);
     virtual void info(const QString &message);
     virtual void error(const QString &message);
+
+    virtual QProcessEnvironment provideEnvironment();
 
 private:
     friend Private;

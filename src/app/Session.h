@@ -37,6 +37,7 @@ public:
 
     void setUser(const QString &user);
     void setPath(const QString &path);
+    QString user() const;
     QString path() const;
 
 protected:

@@ -50,6 +50,10 @@ void Session::setUser(const QString& user) {
     m_user = user;
 }
 
+QString Session::user() const {
+    return m_user;
+}
+
 void Session::setupChildProcess() {
     // setuid and stuff like that
 }

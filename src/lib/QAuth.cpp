@@ -191,4 +191,8 @@ QByteArray QAuth::prompt(const QString &message, bool echo) {
     return message.toLatin1();
 }
 
+QProcessEnvironment QAuth::provideEnvironment() {
+    return QProcessEnvironment();
+}
+
 #include "QAuth.moc"

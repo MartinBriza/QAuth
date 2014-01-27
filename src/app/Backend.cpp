@@ -24,7 +24,10 @@
 #include "backend/PamBackend.h"
 #include "backend/PasswdBackend.h"
 #include "Session.h"
+
 #include <QProcessEnvironment>
+
+#include <pwd.h>
 
 Backend::Backend(QAuthApp* parent)
         : QObject()
@@ -49,6 +52,16 @@ bool Backend::start() {
 }
 
 bool Backend::openSession() {
+    struct passwd *pw;
+    pw = getpwnam(m_app->session()->user().toLatin1());
+    QProcessEnvironment env = m_app->session()->processEnvironment();
+    env.insert("HOME", pw->pw_dir);
+    env.insert("PWD", pw->pw_dir);
+    env.insert("SHELL", pw->pw_shell);
+    env.insert("USER", pw->pw_name);
+    env.insert("LOGNAME", pw->pw_name);
+    // TODO: I'm fairly sure this shouldn't be done for PAM sessions, investigate!
+    m_app->session()->setProcessEnvironment(env);
     return m_app->session()->start();
 }
 
