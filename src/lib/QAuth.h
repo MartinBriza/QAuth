@@ -32,11 +32,12 @@ public:
     explicit QAuth(QObject *parent = 0);
     virtual ~QAuth();
 
-    void start();
-
     void setExecutable(const QString &path);
     void setAutologin(bool on = true);
     void setVerbosity(bool on = true);
+
+public slots:
+    void start();
 
 signals:
     void finished(int success);
