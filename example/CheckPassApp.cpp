@@ -29,21 +29,6 @@ class CheckPass : public QAuth {
 public:
     CheckPass(QObject *parent) : QAuth(parent) {}
 protected:
-    virtual QProcessEnvironment provideEnvironment() {
-        QProcessEnvironment env;
-        env.insert("PATH", "/bin:/usr/bin:/usr/local/bin:/usr/local/sbin:/usr/sbin");
-        // not starting a display... yet
-//         env.insert("DISPLAY", display->name());
-//         env.insert("XAUTHORITY", QString("%1/.Xauthority").arg(pw->pw_dir));
-        // if I only knew how to emulate this, let's hope it will work nevertheless
-//         env.insert("XDG_SEAT", seat->name());
-//         env.insert("XDG_SEAT_PATH", daemonApp->displayManager()->seatPath(seat->name()));
-//         env.insert("XDG_SESSION_PATH", daemonApp->displayManager()->sessionPath(process->name()));
-//         env.insert("XDG_VTNR", QString::number(display->terminalId()));
-        env.insert("DESKTOP_SESSION", "testsession");
-        env.insert("GDMSESSION", "testsession");
-        return env;
-    }
     virtual QByteArray prompt(const QString &message, bool echo = false) {
         std::string input;
         std::cout << message.toStdString();
