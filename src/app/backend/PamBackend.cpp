@@ -98,21 +98,27 @@ int PamBackend::converse(int n, const struct pam_message **msg, struct pam_respo
             case PAM_PROMPT_ECHO_OFF: {
                 qDebug() << " AUTH: PAM: Prompt, echo off..." << msg[i]->msg;
                 QByteArray response = m_app->prompt(QString(msg[i]->msg), false);
-                aresp[i].resp = (char *) malloc(response.length());
-                if (aresp[i].resp == nullptr)
+                aresp[i].resp = (char *) malloc(response.length() + 1);
+                if (aresp[i].resp == nullptr) {
                     failed = true;
-                else
+                }
+                else {
                     memcpy(aresp[i].resp, response.data(), response.length());
+                    aresp[i].resp[response.length()] = '\0';
+                }
                 break;
             }
             case PAM_PROMPT_ECHO_ON: {
                 qDebug() << " AUTH: PAM: Prompt, echo on..." << msg[i]->msg;
                 QByteArray response = m_app->prompt(QString(msg[i]->msg), true);
-                aresp[i].resp = (char *) malloc(response.length());
-                if (aresp[i].resp == nullptr)
+                aresp[i].resp = (char *) malloc(response.length() + 1);
+                if (aresp[i].resp == nullptr) {
                     failed = true;
-                else
+                }
+                else {
                     memcpy(aresp[i].resp, response.data(), response.length());
+                    aresp[i].resp[response.length()] = '\0';
+                }
                 break;
             }
             case PAM_ERROR_MSG:
