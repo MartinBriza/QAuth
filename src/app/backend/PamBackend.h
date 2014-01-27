@@ -36,6 +36,7 @@ public:
     int converse(int n, const struct pam_message **msg, struct pam_response **resp);
 
 public slots:
+    virtual bool start();
     virtual bool authenticate();
     virtual bool openSession();
 

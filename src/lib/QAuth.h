@@ -34,6 +34,7 @@ public:
     void start();
 
     void setExecutable(const QString &path);
+    void setAutologin(bool on = true);
     void setVerbosity(bool on = true);
 
 signals:

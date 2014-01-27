@@ -55,6 +55,7 @@ public:
     QProcess *child { nullptr };
     QLocalSocket *socket { nullptr };
     QString sessionPath { };
+    bool autologin { false };
     qint64 id { 0 };
     static qint64 lastId;
 };
@@ -114,6 +115,7 @@ void QAuth::Private::dataPending() {
             str >> message;
             auth->error(message);
             str << Msg::ERROR;
+            socket->flush();
             break;
         }
         case INFO: {
@@ -121,6 +123,7 @@ void QAuth::Private::dataPending() {
             str >> message;
             auth->info(message);
             str << Msg::INFO;
+            socket->flush();
             break;
         }
         case PROMPT: {
@@ -129,6 +132,7 @@ void QAuth::Private::dataPending() {
             str >> message >> echo;
             QByteArray response = auth->prompt(message, echo);
             str << Msg::PROMPT << response;
+            socket->flush();
             break;
         }
         default: {
@@ -151,12 +155,18 @@ void QAuth::setExecutable(const QString& path) {
     d->sessionPath = path;
 }
 
+void QAuth::setAutologin(bool on) {
+    d->autologin = on;
+}
+
 void QAuth::start() {
     QStringList args;
     args << "--socket" << SocketServer::instance()->fullServerName();
     args << "--id" << QString("%1").arg(d->id);
     if (!d->sessionPath.isEmpty())
         args << "--start" << d->sessionPath;
+    if (d->autologin)
+        args << "--autologin";
     connect(d->child, SIGNAL(finished(int)), this, SIGNAL(finished(int)));
     d->child->start(QAUTH_HELPER_PATH, args);
 }

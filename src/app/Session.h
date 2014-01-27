@@ -33,10 +33,11 @@ public:
     explicit Session(QAuthApp *parent);
     virtual ~Session();
 
-    void start();
+    bool start();
 
     void setUser(const QString &user);
     void setPath(const QString &path);
+    QString path() const;
 
 protected:
     void setupChildProcess();

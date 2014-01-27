@@ -58,7 +58,6 @@ private:
     Backend *m_backend { nullptr };
     Session *m_session { nullptr };
     QLocalSocket *m_socket { nullptr };
-    QString m_sessionPath { };
 };
 
 #endif // QAuth_H

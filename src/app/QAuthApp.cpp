@@ -71,7 +71,11 @@ void QAuthApp::setUp() {
             exit(OTHER_ERROR);
             return;
         }
-        m_sessionPath = args[pos + 1];
+        m_session->setPath(args[pos + 1]);
+    }
+
+    if ((pos = args.indexOf("--autologin")) >= 0) {
+        m_backend->setAutologin(true);
     }
 
     if (server.isEmpty() || m_id <= 0) {
@@ -90,12 +94,17 @@ void QAuthApp::doAuth() {
     if (str.status() != QDataStream::Ok)
         qCritical() << "Couldn't write initial message:" << str.status();
 
+    if (!m_backend->start()) {
+        exit(AUTH_ERROR);
+        return;
+    }
+
     if (!m_backend->authenticate()) {
         exit(AUTH_ERROR);
         return;
     }
 
-    if (!m_sessionPath.isEmpty() && !m_backend->openSession()) {
+    if (!m_backend->openSession()) {
         exit(SESSION_ERROR);
         return;
     }
@@ -107,6 +116,7 @@ void QAuthApp::error(const QString& message) {
     Msg m;
     QDataStream str(m_socket);
     str << Msg::ERROR << message;
+    m_socket->flush();
     m_socket->waitForReadyRead();
     str >> m;
     if (m != ERROR)
@@ -117,9 +127,10 @@ void QAuthApp::info(const QString& message) {
     Msg m;
     QDataStream str(m_socket);
     str << Msg::INFO << message;
+    m_socket->flush();
     m_socket->waitForReadyRead();
     str >> m;
-    if (m != ERROR)
+    if (m != INFO)
         qCritical() << "Received a wrong opcode instead of INFO:" << m;
 }
 
@@ -128,6 +139,7 @@ QByteArray QAuthApp::prompt(const QString& message, bool echo) {
     QByteArray response;
     QDataStream str(m_socket);
     str << Msg::PROMPT << message << echo;
+    m_socket->flush();
     m_socket->waitForReadyRead();
     str >> m >> response;
     qDebug() << "Received a response" << response;
@@ -143,6 +155,7 @@ QProcessEnvironment QAuthApp::requestEnvironment() {
     QProcessEnvironment response;
     QDataStream str(m_socket);
     str << Msg::ENVIRONMENT;
+    m_socket->flush();
     m_socket->waitForReadyRead();
     str >> m >> response;
     qDebug() << "Received a response" << response.toStringList();

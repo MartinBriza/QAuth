@@ -40,7 +40,15 @@ Backend *Backend::get(QAuthApp* parent)
 #endif
 }
 
+void Backend::setAutologin(bool on) {
+    m_autologin = on;
+}
+
+bool Backend::start() {
+    return true;
+}
+
 bool Backend::openSession() {
-    m_app->session()->start();
+    return m_app->session()->start();
 }
 

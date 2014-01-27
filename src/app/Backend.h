@@ -34,13 +34,17 @@ public:
      */
     static Backend *get(QAuthApp *parent);
 
+    void setAutologin(bool on = true);
+
 public slots:
+    virtual bool start();
     virtual bool authenticate() = 0;
     virtual bool openSession();
 
 protected:
     Backend(QAuthApp *parent);
     QAuthApp *m_app;
+    bool m_autologin { false };
 
 private:
 

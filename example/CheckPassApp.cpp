@@ -35,6 +35,12 @@ protected:
         std::cin >> input;
         return input.c_str();
     }
+    virtual void info(const QString &message) {
+        std::cout << message.toStdString() << std::endl;
+    }
+    virtual void error(const QString &message) {
+        std::cerr << message.toStdString() << std::endl;
+    }
 };
 
 CheckPassApp::CheckPassApp(int& argc, char** argv)

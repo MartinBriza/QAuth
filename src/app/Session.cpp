@@ -33,12 +33,17 @@ Session::~Session() {
 
 }
 
-void Session::start() {
+bool Session::start() {
     QProcess::start(m_path);
+    return waitForStarted();
 }
 
 void Session::setPath(const QString& path) {
     m_path = path;
+}
+
+QString Session::path() const {
+    return m_path;
 }
 
 void Session::setUser(const QString& user) {

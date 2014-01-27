@@ -20,6 +20,7 @@
 #include "PamBackend.h"
 #include "PamHandle.h"
 #include "app/QAuthApp.h"
+#include <app/Session.h>
 
 #include <QtCore/QString>
 #include <QDebug>
@@ -29,8 +30,22 @@
 PamBackend::PamBackend(QAuthApp *parent)
         : Backend(parent)
         , m_pam(new PamHandle(this)) {
-    if (!m_pam->start("sudo"))
+}
+
+bool PamBackend::start() {
+    bool result;
+
+    if (m_app->session()->path().isEmpty())
+        result = m_pam->start("qauth-check");
+    else if (m_autologin)
+        result = m_pam->start("qauth-autologin");
+    else
+        result = m_pam->start("qauth-login");
+
+    if (!result)
         m_app->error(m_pam->errorString());
+
+    return result;
 }
 
 bool PamBackend::authenticate() {
@@ -38,10 +53,23 @@ bool PamBackend::authenticate() {
         m_app->error(m_pam->errorString());
         return false;
     }
+    if (!m_pam->acctMgmt()) {
+        m_app->error(m_pam->errorString());
+        return false;
+    }
     return true;
 }
 
 bool PamBackend::openSession() {
+    if (!m_pam->setCred(PAM_ESTABLISH_CRED)) {
+        m_app->error(m_pam->errorString());
+        return false;
+    }
+    QString display = m_app->session()->processEnvironment().value("DISPLAY");
+    if (!display.isEmpty()) {
+        m_pam->setItem(PAM_XDISPLAY, display.toLatin1());
+        m_pam->setItem(PAM_TTY, display.toLatin1());
+    }
     if (!m_pam->openSession()) {
         m_app->error(m_pam->errorString());
         return false;
