@@ -55,7 +55,7 @@ MinimalDMApp::MinimalDMApp(int& argc, char** argv)
     connect(m_auth, SIGNAL(finished(int)), this, SLOT(handleResult(int)));
 
     QTimer::singleShot(0, this, SLOT(startX()));
-    QTimer::singleShot(0, m_auth, SLOT(start()));
+    connect(m_displayServer, SIGNAL(started()), m_auth, SLOT(start()));
 }
 
 MinimalDMApp::~MinimalDMApp() {
