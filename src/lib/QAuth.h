@@ -32,21 +32,64 @@ public:
     explicit QAuth(QObject *parent = 0);
     virtual ~QAuth();
 
+    /**
+     * Set the session to be started after authenticating.
+     * @param path Path of the session executable to be started
+     */
     void setExecutable(const QString &path);
+
+    /**
+     * Set mode to autologin.
+     * Ignored if session is not started
+     * @param on true if should autologin
+     */
     void setAutologin(bool on = true);
+
+    /**
+     * Forwards the output of the underlying authenticator to the current process
+     * @param on true if should forward the output
+     */
     void setVerbosity(bool on = true);
 
 public slots:
+    /**
+     * Sets up the environment and starts the authentication
+     */
     void start();
 
 signals:
     void finished(int success);
 
 protected:
+    /**
+     * Prompt to the user coming from the underlying authentication stack.
+     * To be overriden by the user of the library
+     * @param message the message prompting the user, to be presented to him
+     * @param echo true if the input data should be also shown to the user,
+     *             typically for usernames; false if it should be hidden - for
+     *             passphrases, etc.
+     * @return data retrieved from the user
+     */
     virtual QByteArray prompt(const QString &message, bool echo = false);
+    /**
+     * Information message coming from the underlying authentication stack.
+     * To be overriden by the user of the library
+     * @param message the message to be presented to the user
+     */
     virtual void info(const QString &message);
+    /**
+     * Error message coming from the underlying authentication stack.
+     * To be overriden by the user of the library
+     * @param message the message to presented to the user
+     */
     virtual void error(const QString &message);
 
+    /**
+     * If starting a session, you should override this to provide the basic
+     * process environment.
+     * User-specific data such as HOME is generated automatically.
+     * @return initial environment values for the session
+     */
     virtual QProcessEnvironment provideEnvironment();
 
 private:
