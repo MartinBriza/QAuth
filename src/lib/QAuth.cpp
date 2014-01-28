@@ -135,6 +135,12 @@ void QAuth::Private::dataPending() {
             socket->flush();
             break;
         }
+        case ENVIRONMENT: {
+            QProcessEnvironment env = auth->provideEnvironment();
+            str << Msg::ENVIRONMENT << env;
+            socket->flush();
+            break;
+        }
         default: {
             qWarning() << "QAuth: Unexpected value received:" << m;
         }

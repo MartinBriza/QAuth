@@ -51,7 +51,7 @@ MinimalDMApp::MinimalDMApp(int& argc, char** argv)
         , m_displayServer(new QProcess(this)) {
     m_auth->setVerbosity(true);
     m_auth->setAutologin(true);
-    m_auth->setExecutable("/usr/bin/startkde");
+    m_auth->setExecutable("/usr/bin/lxsession");
     connect(m_auth, SIGNAL(finished(int)), this, SLOT(handleResult(int)));
 
     QTimer::singleShot(0, this, SLOT(startX()));
@@ -70,6 +70,7 @@ void MinimalDMApp::startX() {
     for (int i = 0; ; i++) {
         if (QFile::exists(QString("/tmp/.X%1-lock").arg(i)))
             continue;
+        m_displayServer->setProcessChannelMode(QProcess::ForwardedChannels);
         m_displayServer->start("/usr/bin/X", {QString(":%1").arg(i)});
         if (m_displayServer->waitForStarted())
             m_auth->display = QString(":%1").arg(i);

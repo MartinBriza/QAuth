@@ -112,8 +112,6 @@ void QAuthApp::doAuth() {
         exit(SESSION_ERROR);
         return;
     }
-
-    exit(AUTH_SUCCESS);
 }
 
 void QAuthApp::error(const QString& message) {

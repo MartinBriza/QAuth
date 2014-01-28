@@ -54,16 +54,18 @@ bool Backend::start() {
 bool Backend::openSession() {
     struct passwd *pw;
     pw = getpwnam(m_app->session()->user().toLatin1());
-    QProcessEnvironment env = m_app->session()->processEnvironment();
-    env.insert("HOME", pw->pw_dir);
-    env.insert("PWD", pw->pw_dir);
-    env.insert("SHELL", pw->pw_shell);
-    env.insert("USER", pw->pw_name);
-    env.insert("LOGNAME", pw->pw_name);
-    // TODO if XDISPLAY?
-    env.insert("XAUTHORITY", QString("%1/.Xauthority").arg(pw->pw_dir));
-    // TODO: I'm fairly sure this shouldn't be done for PAM sessions, investigate!
-    m_app->session()->setProcessEnvironment(env);
+    if (pw) {
+        QProcessEnvironment env = m_app->session()->processEnvironment();
+        env.insert("HOME", pw->pw_dir);
+        env.insert("PWD", pw->pw_dir);
+        env.insert("SHELL", pw->pw_shell);
+        env.insert("USER", pw->pw_name);
+        env.insert("LOGNAME", pw->pw_name);
+        // TODO if XDISPLAY?
+        env.insert("XAUTHORITY", QString("%1/.Xauthority").arg(pw->pw_dir));
+        // TODO: I'm fairly sure this shouldn't be done for PAM sessions, investigate!
+        m_app->session()->setProcessEnvironment(env);
+    }
     return m_app->session()->start();
 }
 
