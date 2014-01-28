@@ -57,6 +57,7 @@ bool PamBackend::authenticate() {
         m_app->error(m_pam->errorString());
         return false;
     }
+    m_app->session()->setUser((const char*) m_pam->getItem(PAM_USER));
     return true;
 }
 
