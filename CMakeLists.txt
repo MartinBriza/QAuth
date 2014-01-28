@@ -7,10 +7,13 @@ set(CMAKE_AUTOMOC ON)
 find_package(Qt4 REQUIRED)
 find_package(PAM)
 
+include (InstallSettings)
+
 include_directories(${QT_INCLUDES} ${CMAKE_CURRENT_BINARY_DIR})
 
-add_definitions(-Wall -march=native -std=c++11)
+add_definitions(-Wall -Wextra -std=c++11)
 
+add_subdirectory(data)
 add_subdirectory(example)
 add_subdirectory(src)
 add_subdirectory(test)

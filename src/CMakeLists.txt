@@ -1,4 +1,4 @@
-
+set(CMAKE_CXX_FLAGS "-g -Wall")
 configure_file(common/config.h.in common/config.h IMMEDIATE @ONLY)
 include_directories(common)
 include_directories(${CMAKE_BINARY_DIR}/src/common)
@@ -18,8 +18,6 @@ if(PAM_FOUND)
     )
 endif()
 
-qt4_automoc(${QAuth_SRCS})
-
 add_executable(QAuthHelper ${QAuth_SRCS})
 target_link_libraries(QAuthHelper ${QT_QTCORE_LIBRARY} ${QT_QTNETWORK_LIBRARY})
 if(PAM_FOUND)
@@ -28,13 +26,19 @@ else()
     target_link_libraries(QAuthHelper crypt)
 endif()
 
-install(TARGETS QAuthHelper RUNTIME DESTINATION bin)
+install(TARGETS QAuthHelper RUNTIME DESTINATION ${LIBEXEC_INSTALL_DIR})
 
 
 set(libQAuth_SRCS
     lib/QAuth.cpp
 )
-qt4_automoc(${libQAuth_SRCS})
 
 add_library(QAuth SHARED ${libQAuth_SRCS})
 target_link_libraries(QAuth ${QT_QTCORE_LIBRARY} ${QT_QTNETWORK_LIBRARY})
+
+install(TARGETS QAuth LIBRARY DESTINATION ${LIB_INSTALL_DIR})
+install(FILES
+    lib/QAuth
+    lib/QAuth.h
+    DESTINATION
+    ${INCLUDE_INSTALL_DIR} COMPONENT Devel)

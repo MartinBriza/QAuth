@@ -21,7 +21,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define QAUTH_HELPER_PATH "src/QAuthHelper"
+#define QAUTH_HELPER_PATH "@LIBEXEC_INSTALL_DIR@/QAuthHelper"
 #cmakedefine PAM_FOUND
 
 #endif // CONFIG_H
