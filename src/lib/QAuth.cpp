@@ -193,6 +193,7 @@ void QAuth::info(const QString &message) {
 }
 
 QByteArray QAuth::prompt(const QString &message, bool echo) {
+    Q_UNUSED(echo);
     qDebug() << "QAuth backend request:" << message << ". Echoing";
     return message.toLatin1();
 }
