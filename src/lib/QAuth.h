@@ -58,6 +58,7 @@ public slots:
     void start();
 
 signals:
+    void internalError(const QString &message);
     void finished(int success);
 
 protected:

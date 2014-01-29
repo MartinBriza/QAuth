@@ -142,7 +142,7 @@ void QAuth::Private::dataPending() {
             break;
         }
         default: {
-            qWarning() << "QAuth: Unexpected value received:" << m;
+            emit qobject_cast<QAuth*>(parent())->internalError(QString("QAuth: Unexpected value received: %1").arg(m));
         }
     }
 }
