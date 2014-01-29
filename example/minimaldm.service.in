@@ -1,0 +1,12 @@
+[Unit]
+Name=Minimal Display Manager
+Conflicts=getty@tty1.service
+After=systemd-user-sessions.service getty@tty1.service plymouth-quit.service
+
+[Service]
+ExecStart=@BIN_INSTALL_DIR@/minimaldm
+Restart=always
+IgnoreSIGPIPE=no
+
+[Install]
+Alias=display-manager.service
