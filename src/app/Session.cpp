@@ -23,6 +23,8 @@
 
 #include <sys/types.h>
 #include <unistd.h>
+#include <pwd.h>
+#include <grp.h>
 
 Session::Session(QAuthApp *parent)
         : QProcess(parent) {
@@ -55,7 +57,11 @@ QString Session::user() const {
 }
 
 void Session::setupChildProcess() {
-    // setuid and stuff like that
+    struct passwd *pw = getpwnam(m_user.toLocal8Bit());
+    setgid(pw->pw_gid);
+    initgroups(pw->pw_name, pw->pw_gid);
+    setuid(pw->pw_uid);
+    chdir(pw->pw_dir);
 }
 
 #include "Session.moc"
