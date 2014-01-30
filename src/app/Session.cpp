@@ -26,7 +26,7 @@
 
 Session::Session(QAuthApp *parent)
         : QProcess(parent) {
-
+    setProcessChannelMode(QProcess::ForwardedChannels);
 }
 
 Session::~Session() {
@@ -34,7 +34,7 @@ Session::~Session() {
 }
 
 bool Session::start() {
-    QProcess::start(m_path);
+    QProcess::start("/etc/X11/xinit/XSession", {m_path});
     return waitForStarted();
 }
 
