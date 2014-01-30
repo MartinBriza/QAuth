@@ -13,6 +13,9 @@ include_directories(${QT_INCLUDES} ${CMAKE_CURRENT_BINARY_DIR})
 
 add_definitions(-Wall -Wextra -std=c++11)
 
+configure_file(qauth.pc.in qauth.pc @ONLY)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/qauth.pc DESTINATION ${LIB_INSTALL_DIR}/pkgconfig)
+
 add_subdirectory(data)
 if (BUILD_EXAMPLES)
     add_subdirectory(example)
