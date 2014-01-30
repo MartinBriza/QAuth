@@ -182,8 +182,6 @@ private:
      */
     static int converse(int n, const struct pam_message **msg, struct pam_response **resp, void *data);
 
-    PamBackend *m_backend { nullptr };
-
     int m_silent { 0 }; ///< flag mask for silence of the contained calls
 
     struct pam_conv m_conv; ///< the current conversation

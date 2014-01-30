@@ -168,8 +168,7 @@ QString PamHandle::errorString() {
     return pam_strerror(m_handle, m_result);
 }
 
-PamHandle::PamHandle(PamBackend *parent)
-        : m_backend(parent) {
+PamHandle::PamHandle(PamBackend *parent) {
     // create context
     m_conv = { &PamHandle::converse, parent };
 }
