@@ -61,7 +61,7 @@ signals:
     void internalError(QString message);
     void authenticated(QString user);
     void sessionOpened();
-    void sessionFinished(int exitValue);
+    void finished(int exitValue);
 
 protected:
     /**

@@ -51,6 +51,8 @@ public:
     void setSocket(QLocalSocket *socket);
 public slots:
     void dataPending();
+    void childExited(int exitCode, QProcess::ExitStatus exitStatus);
+    void childError(QProcess::ProcessError error);
 public:
     QProcess *child { nullptr };
     QLocalSocket *socket { nullptr };
@@ -97,6 +99,8 @@ QAuth::Private::Private(QAuth *parent)
         , child(new QProcess(this))
         , id(lastId++) {
     SocketServer::instance()->helpers[id] = this;
+    connect(child, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(childExited(int,QProcess::ExitStatus)));
+    connect(child, SIGNAL(error(QProcess::ProcessError)), this, SLOT(childError(QProcess::ProcessError)));
 }
 
 void QAuth::Private::setSocket(QLocalSocket *socket) {
@@ -153,6 +157,18 @@ void QAuth::Private::dataPending() {
     }
 }
 
+void QAuth::Private::childExited(int exitCode, QProcess::ExitStatus exitStatus) {
+    if (exitStatus == QProcess::NormalExit)
+        emit qobject_cast<QAuth*>(parent())->finished(exitCode);
+    else
+        emit qobject_cast<QAuth*>(parent())->internalError(child->errorString());
+}
+
+void QAuth::Private::childError(QProcess::ProcessError error) {
+    Q_UNUSED(error);
+    emit qobject_cast<QAuth*>(parent())->internalError(child->errorString());
+}
+
 QAuth::QAuth(QObject* parent)
         : QObject(parent)
         , d(new Private(this)) {
@@ -179,7 +195,6 @@ void QAuth::start() {
         args << "--start" << d->sessionPath;
     if (d->autologin)
         args << "--autologin";
-    connect(d->child, SIGNAL(finished(int)), this, SIGNAL(finished(int)));
     d->child->start(QAUTH_HELPER_PATH, args);
 }
 
