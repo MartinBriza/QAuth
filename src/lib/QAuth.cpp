@@ -114,16 +114,12 @@ void QAuth::Private::dataPending() {
             QString message;
             str >> message;
             auth->error(message);
-            str << Msg::ERROR;
-            socket->flush();
             break;
         }
         case INFO: {
             QString message;
             str >> message;
             auth->info(message);
-            str << Msg::INFO;
-            socket->flush();
             break;
         }
         case PROMPT: {
@@ -141,8 +137,18 @@ void QAuth::Private::dataPending() {
             socket->flush();
             break;
         }
+        case AUTHENTICATED: {
+            QString user;
+            str >> user;
+            emit auth->authenticated(user);
+            break;
+        }
+        case SESSION_OPENED: {
+            emit auth->sessionOpened();
+            break;
+        }
         default: {
-            emit qobject_cast<QAuth*>(parent())->internalError(QString("QAuth: Unexpected value received: %1").arg(m));
+            emit auth->internalError(QString("QAuth: Unexpected value received: %1").arg(m));
         }
     }
 }

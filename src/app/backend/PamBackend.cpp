@@ -57,7 +57,6 @@ bool PamBackend::authenticate() {
         m_app->error(m_pam->errorString());
         return false;
     }
-    m_app->session()->setUser((const char*) m_pam->getItem(PAM_USER));
     return true;
 }
 
@@ -76,6 +75,10 @@ bool PamBackend::openSession() {
         return false;
     }
     return Backend::openSession();
+}
+
+QString PamBackend::userName() {
+    return (const char*) m_pam->getItem(PAM_USER);
 }
 
 int PamBackend::converse(int n, const struct pam_message **msg, struct pam_response **resp) {

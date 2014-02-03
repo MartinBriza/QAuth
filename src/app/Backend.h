@@ -41,6 +41,8 @@ public slots:
     virtual bool authenticate() = 0;
     virtual bool openSession();
 
+    virtual QString userName() = 0;
+
 protected:
     Backend(QAuthApp *parent);
     QAuthApp *m_app;

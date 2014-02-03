@@ -48,6 +48,8 @@ public slots:
     void info(const QString &message);
     void error(const QString &message);
     QProcessEnvironment requestEnvironment();
+    void authenticated(const QString &user);
+    void sessionOpened();
 
 private slots:
     void setUp();

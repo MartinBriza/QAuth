@@ -40,6 +40,8 @@ public slots:
     virtual bool authenticate();
     virtual bool openSession();
 
+    virtual QString userName();
+
 private:
     PamHandle *m_pam;
 };

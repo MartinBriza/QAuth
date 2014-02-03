@@ -29,7 +29,9 @@ enum Msg {
     ERROR,
     INFO,
     PROMPT,
-    ENVIRONMENT
+    ENVIRONMENT,
+    AUTHENTICATED,
+    SESSION_OPENED,
 };
 
 inline QDataStream& operator<<(QDataStream &s, const Msg &m) {

@@ -104,6 +104,10 @@ void QAuthApp::doAuth() {
         return;
     }
 
+    QString user = m_backend->userName();
+    authenticated(user);
+    m_session->setUser(user);
+
     if (!m_session->path().isEmpty()) {
         m_session->setProcessEnvironment(requestEnvironment());
     }
@@ -112,28 +116,20 @@ void QAuthApp::doAuth() {
         exit(SESSION_ERROR);
         return;
     }
+
+    sessionOpened();
 }
 
 void QAuthApp::error(const QString& message) {
-    Msg m;
     QDataStream str(m_socket);
     str << Msg::ERROR << message;
     m_socket->flush();
-    m_socket->waitForReadyRead(-1);
-    str >> m;
-    if (m != ERROR)
-        qCritical() << "Received a wrong opcode instead of ERROR:" << m;
 }
 
 void QAuthApp::info(const QString& message) {
-    Msg m;
     QDataStream str(m_socket);
     str << Msg::INFO << message;
     m_socket->flush();
-    m_socket->waitForReadyRead(-1);
-    str >> m;
-    if (m != INFO)
-        qCritical() << "Received a wrong opcode instead of INFO:" << m;
 }
 
 QByteArray QAuthApp::prompt(const QString& message, bool echo) {
@@ -166,6 +162,18 @@ QProcessEnvironment QAuthApp::requestEnvironment() {
         qCritical() << "Received a wrong opcode instead of ENVIRONMENT:" << m;
     }
     return response;
+}
+
+void QAuthApp::authenticated(const QString &user) {
+    QDataStream str(m_socket);
+    str << Msg::AUTHENTICATED << user;
+    m_socket->flush();
+}
+
+void QAuthApp::sessionOpened() {
+    QDataStream str(m_socket);
+    str << Msg::AUTHENTICATED;
+    m_socket->flush();
 }
 
 Session *QAuthApp::session() {

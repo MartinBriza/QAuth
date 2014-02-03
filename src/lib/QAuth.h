@@ -58,8 +58,10 @@ public slots:
     void start();
 
 signals:
-    void internalError(const QString &message);
-    void finished(int success);
+    void internalError(QString message);
+    void authenticated(QString user);
+    void sessionOpened();
+    void sessionFinished(int exitValue);
 
 protected:
     /**
