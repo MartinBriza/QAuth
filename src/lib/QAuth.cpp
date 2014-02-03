@@ -160,7 +160,7 @@ QAuth::QAuth(QObject* parent)
 }
 
 QAuth::~QAuth() {
-
+    delete d;
 }
 
 void QAuth::setExecutable(const QString& path) {
