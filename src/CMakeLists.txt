@@ -30,7 +30,9 @@ install(TARGETS QAuthHelper RUNTIME DESTINATION ${LIBEXEC_INSTALL_DIR})
 
 
 set(libQAuth_SRCS
+    lib/Prompt.cpp
     lib/QAuth.cpp
+    lib/Request.cpp
 )
 
 add_library(QAuth SHARED ${libQAuth_SRCS})

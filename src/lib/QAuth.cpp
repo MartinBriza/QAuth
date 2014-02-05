@@ -29,6 +29,8 @@
 
 #include <unistd.h>
 
+namespace QAuth {
+
 class SocketServer : public QLocalServer {
     Q_OBJECT
 public slots:
@@ -221,6 +223,8 @@ QByteArray QAuth::prompt(const QString &message, bool echo) {
 
 QProcessEnvironment QAuth::provideEnvironment() {
     return QProcessEnvironment();
+}
+
 }
 
 #include "QAuth.moc"
