@@ -61,7 +61,7 @@ public:
     bool hidden() const;
     QByteArray response() const;
     void setResponse(const QByteArray &r);
-signals:
+Q_SIGNALS:
     void responseChanged();
 protected:
     void setType(Type type);
@@ -104,7 +104,7 @@ public:
     QAuthRequest(QObject *parent = 0);
     QString info() const;
     QList<QAuthPrompt*> prompts() const;
-public slots:
+public Q_SLOTS:
     void done();
 protected:
     void setInfo(const QString &info);
@@ -177,13 +177,13 @@ public:
      */
     void setSession(const QString &path);
 
-public slots:
+public Q_SLOTS:
     /**
      * Sets up the environment and starts the authentication
      */
     void start();
 
-signals:
+Q_SIGNALS:
     void request(QAuthRequest *request);
 
     void error(QString message);
