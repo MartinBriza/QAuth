@@ -34,6 +34,9 @@
  * \warning Don't use the \ref message property if you have your own strings for
  *      the \ref Type -s. PAM sends horrible horrible stuff and passwd obviously
  *      doesn't tell us a thing.
+ *
+ * \todo maybe I should remove the protected setters and move the private classes 
+ * into headers I can access from other classes
  */
 class QAuthPrompt : public QObject {
     Q_OBJECT
@@ -60,11 +63,17 @@ public:
     void setResponse(const QByteArray &r);
 signals:
     void responseChanged();
+protected:
+    void setType(Type type);
+    void setMessage(const QString &message);
+    void setHidden(bool hidden);
 private:
     class Private;
     Private *d { nullptr };
     friend class QAuth;
     friend class QAuthRequest;
+    friend QDataStream& operator<<(QDataStream &s, const QAuthPrompt &m);
+    friend QDataStream& operator>>(QDataStream &s, QAuthPrompt &m);
 };
 
 /**
@@ -97,11 +106,16 @@ public:
     QList<QAuthPrompt*> prompts() const;
 public slots:
     void done();
+protected:
+    void setInfo(const QString &info);
+    void setPrompts(const QList<QAuthPrompt*> prompts);
 private:
     class Private;
     Private *d { nullptr };
     friend class QAuth;
     friend class QAuthPrompt;
+    friend QDataStream& operator<<(QDataStream &s, const QAuthRequest &m);
+    friend QDataStream& operator>>(QDataStream &s, QAuthRequest &m);
 };
 
 /**

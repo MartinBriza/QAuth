@@ -24,6 +24,8 @@
 #include <QDataStream>
 #include <QProcessEnvironment>
 
+#include "lib/QAuth.h"
+
 enum Msg {
     HELLO = 1,
     ERROR,
@@ -58,6 +60,50 @@ inline QDataStream& operator>>(QDataStream &s, QProcessEnvironment &m) {
     for (QString s : l) {
         int pos = s.indexOf('=');
         m.insert(s.left(pos), s.mid(pos + 1));
+    }
+    return s;
+}
+
+inline QDataStream& operator<<(QDataStream &s, const QAuthPrompt &m) {
+    if (m.response().isEmpty()) {
+        s << qint32(m.type()) << m.message() << m.hidden() << m.response();
+    }
+    else {
+        s << qint32(QAuthPrompt::NONE) << QString() << false << m.response();
+    }
+    return s;
+}
+
+inline QDataStream& operator>>(QDataStream &s, QAuthPrompt &m) {
+    qint32 type;
+    QString message;
+    bool hidden;
+    QByteArray response;
+    s >> type >> message >> hidden >> response;
+    m.setType(QAuthPrompt::Type(type));
+    m.setMessage(message);
+    m.setHidden(hidden);
+    if (!response.isEmpty())
+        m.setResponse(response);
+    return s;
+}
+
+inline QDataStream& operator<<(QDataStream &s, const QAuthRequest &m) {
+    s << m.info() << m.prompts().length();
+    Q_FOREACH(QAuthPrompt *p, m.prompts()) {
+        s << (*p);
+    }
+    return s;
+}
+
+inline QDataStream& operator>>(QDataStream &s, QAuthRequest &m) {
+    QString info;
+    QList<QAuthPrompt*> prompts;
+    int length;
+    s >> info >> length;
+    for (int i = 0; i < length; i++) {
+        QAuthPrompt *p = new QAuthPrompt(&m);
+        s >> (*p);
     }
     return s;
 }
