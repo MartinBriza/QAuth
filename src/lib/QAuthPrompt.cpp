@@ -20,37 +20,35 @@
 
 #include "QAuth.h"
 
-using namespace QAuth;
-
-class Prompt::Private {
+class QAuthPrompt::Private {
 public:
-    Prompt::Type type;
+    QAuthPrompt::Type type;
     QByteArray response;
     QString message;
     bool hidden;
 };
 
-Prompt::Type Prompt::type() const {
+QAuthPrompt::Type QAuthPrompt::type() const {
     return d->type;
 }
 
-QString Prompt::message() const {
+QString QAuthPrompt::message() const {
     return d->message;
 }
 
-QByteArray Prompt::response() const {
+QByteArray QAuthPrompt::response() const {
     return d->response;
 }
 
-void Prompt::setResponse(const QByteArray &r) {
+void QAuthPrompt::setResponse(const QByteArray &r) {
     if (r != d->response) {
         d->response = r;
         emit responseChanged();
     }
 }
 
-bool Prompt::hidden() const {
+bool QAuthPrompt::hidden() const {
     return d->hidden;
 }
 
-#include "Prompt.moc"
+#include "QAuthPrompt.moc"

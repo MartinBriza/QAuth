@@ -26,10 +26,9 @@
 #include <QDebug>
 #include <QLocalServer>
 #include <QLocalSocket>
+#include <QtDeclarative/QDeclarativeTypeInfo>
 
 #include <unistd.h>
-
-namespace QAuth {
 
 class SocketServer : public QLocalServer {
     Q_OBJECT
@@ -59,12 +58,15 @@ public:
     QProcess *child { nullptr };
     QLocalSocket *socket { nullptr };
     QString sessionPath { };
+    QString user { };
     bool autologin { false };
     qint64 id { 0 };
     static qint64 lastId;
 };
 
 qint64 QAuth::Private::lastId = 1;
+
+
 
 SocketServer::SocketServer()
         : QLocalServer() {
@@ -96,6 +98,8 @@ SocketServer* SocketServer::instance() {
     return self;
 }
 
+
+
 QAuth::Private::Private(QAuth *parent)
         : QObject(parent)
         , child(new QProcess(this))
@@ -111,6 +115,7 @@ void QAuth::Private::setSocket(QLocalSocket *socket) {
 }
 
 void QAuth::Private::dataPending() {
+    /*
     QAuth *auth = qobject_cast<QAuth*>(parent());
     Msg m;
     QDataStream str(socket);
@@ -157,18 +162,32 @@ void QAuth::Private::dataPending() {
             emit auth->internalError(QString("QAuth: Unexpected value received: %1").arg(m));
         }
     }
+    */
 }
 
 void QAuth::Private::childExited(int exitCode, QProcess::ExitStatus exitStatus) {
+    /*
     if (exitStatus == QProcess::NormalExit)
         emit qobject_cast<QAuth*>(parent())->finished(exitCode);
     else
         emit qobject_cast<QAuth*>(parent())->internalError(child->errorString());
+    */
 }
 
 void QAuth::Private::childError(QProcess::ProcessError error) {
     Q_UNUSED(error);
-    emit qobject_cast<QAuth*>(parent())->internalError(child->errorString());
+//     emit qobject_cast<QAuth*>(parent())->internalError(child->errorString());
+}
+
+
+
+QAuth::QAuth(const QString &user, const QString &session, bool autologin, QObject *parent, bool verbose)
+        : QObject(parent)
+        , d(new Private(this)) {
+    setUser(user);
+    setAutologin(autologin);
+    setSession(session);
+    setVerbose(verbose);
 }
 
 QAuth::QAuth(QObject* parent)
@@ -181,12 +200,39 @@ QAuth::~QAuth() {
     delete d;
 }
 
-void QAuth::setExecutable(const QString& path) {
-    d->sessionPath = path;
+bool QAuth::autologin() const {
+    return d->autologin;
+}
+
+QString QAuth::session() const {
+    return d->sessionPath;
+}
+
+QString QAuth::user() const {
+    return d->user;
+}
+
+bool QAuth::verbose() const {
+    return d->child->processChannelMode() == QProcess::ForwardedChannels;
+}
+
+void QAuth::setUser(const QString &user) {
+    d->user = user;
 }
 
 void QAuth::setAutologin(bool on) {
     d->autologin = on;
+}
+
+void QAuth::setSession(const QString& path) {
+    d->sessionPath = path;
+}
+
+void QAuth::setVerbose(bool on) {
+    if (on)
+        d->child->setProcessChannelMode(QProcess::ForwardedChannels);
+    else
+        d->child->setProcessChannelMode(QProcess::SeparateChannels);
 }
 
 void QAuth::start() {
@@ -195,36 +241,15 @@ void QAuth::start() {
     args << "--id" << QString("%1").arg(d->id);
     if (!d->sessionPath.isEmpty())
         args << "--start" << d->sessionPath;
+    if (!d->user.isEmpty())
+        args << "--user" << d->user;
     if (d->autologin)
         args << "--autologin";
     d->child->start(QAUTH_HELPER_PATH, args);
 }
 
-void QAuth::setVerbosity(bool on) {
-    if (on)
-        d->child->setProcessChannelMode(QProcess::ForwardedChannels);
-    else
-        d->child->setProcessChannelMode(QProcess::SeparateChannels);
-}
-
-void QAuth::error(const QString &message) {
-    qWarning() << "QAuth backend error:" << message;
-}
-
-void QAuth::info(const QString &message) {
-    qDebug() << "QAuth backend info:" << message;
-}
-
-QByteArray QAuth::prompt(const QString &message, bool echo) {
-    Q_UNUSED(echo);
-    qDebug() << "QAuth backend request:" << message << ". Echoing";
-    return message.toLatin1();
-}
-
 QProcessEnvironment QAuth::provideEnvironment() {
     return QProcessEnvironment();
-}
-
 }
 
 #include "QAuth.moc"

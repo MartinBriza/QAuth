@@ -20,20 +20,17 @@
 
 #include "QAuth.h"
 
-namespace QAuth {
+class QAuthRequest::Private {
+public:
+    QString info;
+    QList<QAuthPrompt*> prompts;
+};
 
-    class Request::Private {
-    public:
-        QString info;
-        QList<Prompt> prompts;
-    };
-
-    QString Request::info() const {
-        return d->info;
-    }
-
-    QList<Prompt> Request::prompts() const {
-        //return d->prompts;
-    }
+QString QAuthRequest::info() const {
+    return d->info;
 }
-#include "Request.moc"
+
+QList<QAuthPrompt*> QAuthRequest::prompts() const {
+    return d->prompts;
+}
+#include "QAuthRequest.moc"
