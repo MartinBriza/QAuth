@@ -24,13 +24,14 @@
 #include <QDataStream>
 #include <QProcessEnvironment>
 
-#include "lib/QAuth.h"
+#include "lib/qauth.h"
+#include "prompt_p.h"
+#include "request_p.h"
 
 enum Msg {
     HELLO = 1,
     ERROR,
-    INFO,
-    PROMPT,
+    REQUEST,
     ENVIRONMENT,
     AUTHENTICATED,
     SESSION_OPENED,
@@ -80,11 +81,11 @@ inline QDataStream& operator>>(QDataStream &s, QAuthPrompt &m) {
     bool hidden;
     QByteArray response;
     s >> type >> message >> hidden >> response;
-    m.setType(QAuthPrompt::Type(type));
-    m.setMessage(message);
-    m.setHidden(hidden);
+    m.d->type = QAuthPrompt::Type(type);
+    m.d->message = message;
+    m.d->hidden = hidden;
     if (!response.isEmpty())
-        m.setResponse(response);
+        m.d->response = response;
     return s;
 }
 
@@ -104,7 +105,10 @@ inline QDataStream& operator>>(QDataStream &s, QAuthRequest &m) {
     for (int i = 0; i < length; i++) {
         QAuthPrompt *p = new QAuthPrompt(&m);
         s >> (*p);
+        prompts << p;
     }
+    m.d->info = info;
+    m.d->prompts = prompts;
     return s;
 }
 

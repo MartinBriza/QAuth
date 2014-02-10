@@ -128,7 +128,7 @@ void QAuthApp::error(const QString& message) {
 
 void QAuthApp::info(const QString& message) {
     QDataStream str(m_socket);
-    str << Msg::INFO << message;
+    //str << Msg::INFO << message;
     m_socket->flush();
 }
 
@@ -136,15 +136,17 @@ QByteArray QAuthApp::prompt(const QString& message, bool echo) {
     Msg m;
     QByteArray response;
     QDataStream str(m_socket);
-    str << Msg::PROMPT << message << echo;
+    //str << Msg::PROMPT << message << echo;
     m_socket->flush();
     m_socket->waitForReadyRead(-1);
     str >> m >> response;
     qDebug() << "Received a response" << response;
+    /*
     if (m != PROMPT) {
         response = QByteArray();
         qCritical() << "Received a wrong opcode instead of PROMPT:" << m;
     }
+    */
     return response;
 }
 

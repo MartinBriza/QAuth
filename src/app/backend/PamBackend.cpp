@@ -20,7 +20,9 @@
 #include "PamBackend.h"
 #include "PamHandle.h"
 #include "app/QAuthApp.h"
-#include <app/Session.h>
+#include "app/Session.h"
+
+#include "Messages.h"
 
 #include <QtCore/QString>
 #include <QDebug>
@@ -95,9 +97,10 @@ int PamBackend::converse(int n, const struct pam_message **msg, struct pam_respo
 
     bool failed = false;
 
+    //QAuthRequest *request = new QAuthRequest(this);
+
     for (int i = 0; i < n; ++i) {
-        aresp[i].resp_retcode = 0;
-        aresp[i].resp = nullptr;
+        //QAuthPrompt *p = new QAuthPrompt(request);
         switch (msg[i]->msg_style) {
             case PAM_PROMPT_ECHO_OFF: {
                 qDebug() << " AUTH: PAM: Prompt, echo off..." << msg[i]->msg;

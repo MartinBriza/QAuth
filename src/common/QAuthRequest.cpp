@@ -18,13 +18,9 @@
  *
  */
 
-#include "QAuth.h"
-
-class QAuthRequest::Private {
-public:
-    QString info;
-    QList<QAuthPrompt*> prompts;
-};
+#include "request.h"
+#include "request_p.h"
+#include "lib/qauth.h"
 
 QString QAuthRequest::info() const {
     return d->info;
@@ -33,4 +29,9 @@ QString QAuthRequest::info() const {
 QList<QAuthPrompt*> QAuthRequest::prompts() const {
     return d->prompts;
 }
-#include "QAuthRequest.moc"
+
+void QAuthRequest::done() {
+    // TODO
+}
+
+#include "moc_request.moc"

@@ -21,102 +21,11 @@
 #ifndef QAUTH_H
 #define QAUTH_H
 
+#include "request.h"
+#include "prompt.h"
+
 #include <QtCore/QObject>
 #include <QProcessEnvironment>
-
-/**
- * \brief
- * One prompt input for the authentication
- *
- * \section description
- * The main, not completely obvious rationale for this class is:
- *
- * \warning Don't use the \ref message property if you have your own strings for
- *      the \ref Type -s. PAM sends horrible horrible stuff and passwd obviously
- *      doesn't tell us a thing.
- *
- * \todo maybe I should remove the protected setters and move the private classes 
- * into headers I can access from other classes
- */
-class QAuthPrompt : public QObject {
-    Q_OBJECT
-    Q_ENUMS(Type)
-    Q_PROPERTY(Type type READ type)
-    Q_PROPERTY(QString message READ message)
-    Q_PROPERTY(bool hidden READ hidden)
-    Q_PROPERTY(QByteArray response READ response WRITE setResponse NOTIFY responseChanged)
-public:
-    QAuthPrompt(QObject *parent = 0);
-    enum Type {
-        NONE,
-        UNKNOWN,
-        LOGIN_USER,
-        LOGIN_PASSWORD,
-        CHANGE_CURRENT,
-        CHANGE_NEW,
-        CHANGE_REPEAT
-    };
-    Type type() const;
-    QString message() const;
-    bool hidden() const;
-    QByteArray response() const;
-    void setResponse(const QByteArray &r);
-Q_SIGNALS:
-    void responseChanged();
-protected:
-    void setType(Type type);
-    void setMessage(const QString &message);
-    void setHidden(bool hidden);
-private:
-    class Private;
-    Private *d { nullptr };
-    friend class QAuth;
-    friend class QAuthRequest;
-    friend QDataStream& operator<<(QDataStream &s, const QAuthPrompt &m);
-    friend QDataStream& operator>>(QDataStream &s, QAuthPrompt &m);
-};
-
-/**
- * \brief
- * QAuthRequest is the main class for tracking requests from the underlying auth stack
- *
- * \section description
- * Typically, when logging in, you'll receive a list containing one or two fields:
- *
- *  * First one for the username (if you didn't provide it before);
- *    hidden = false, type = LOGIN_USER, message = whatever the stack provides
- *
- *  * Second one for the user's password
- *    hidden = true, type = LOGIN_PASSWORD, message = whatever the stack provides
- *
- * It's up to you to fill the \ref QAuthPrompt::response property.
- * When all the fields are filled to your satisfaction, just trigger the \ref done 
- * slot and the response will go back to the authenticator.
- *
- * \todo Decide if it's sane to use the info messages from PAM or to somehow parse them
- * and make the password changing message into a Request::Type of some kind
- */
-class QAuthRequest : public QObject {
-    Q_OBJECT
-    Q_PROPERTY(QString info READ info)
-    Q_PROPERTY(QList<QAuthPrompt*> prompts READ prompts)
-public:
-    QAuthRequest(QObject *parent = 0);
-    QString info() const;
-    QList<QAuthPrompt*> prompts() const;
-public Q_SLOTS:
-    void done();
-protected:
-    void setInfo(const QString &info);
-    void setPrompts(const QList<QAuthPrompt*> prompts);
-private:
-    class Private;
-    Private *d { nullptr };
-    friend class QAuth;
-    friend class QAuthPrompt;
-    friend QDataStream& operator<<(QDataStream &s, const QAuthRequest &m);
-    friend QDataStream& operator>>(QDataStream &s, QAuthRequest &m);
-};
 
 /**
  * \brief

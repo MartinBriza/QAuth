@@ -18,7 +18,7 @@
  *
  */
 
-#include "QAuth.h"
+#include "qauth.h"
 #include "Messages.h"
 #include "config.h"
 
@@ -54,7 +54,9 @@ public slots:
     void dataPending();
     void childExited(int exitCode, QProcess::ExitStatus exitStatus);
     void childError(QProcess::ProcessError error);
+    void finalizeRequest();
 public:
+    QAuthRequest *request { nullptr };
     QProcess *child { nullptr };
     QLocalSocket *socket { nullptr };
     QString sessionPath { };
@@ -115,7 +117,6 @@ void QAuth::Private::setSocket(QLocalSocket *socket) {
 }
 
 void QAuth::Private::dataPending() {
-    /*
     QAuth *auth = qobject_cast<QAuth*>(parent());
     Msg m;
     QDataStream str(socket);
@@ -127,19 +128,13 @@ void QAuth::Private::dataPending() {
             auth->error(message);
             break;
         }
-        case INFO: {
-            QString message;
-            str >> message;
-            auth->info(message);
-            break;
-        }
-        case PROMPT: {
-            QString message;
-            bool echo;
-            str >> message >> echo;
-            QByteArray response = auth->prompt(message, echo);
-            str << Msg::PROMPT << response;
-            socket->flush();
+        case REQUEST: {
+            if (request)
+                request->deleteLater();
+            request = new QAuthRequest(auth);
+            connect(request, SIGNAL(finished()), this, SLOT(finalizeRequest()));
+            str >> (*request);
+            emit auth->request(request);
             break;
         }
         case ENVIRONMENT: {
@@ -151,18 +146,19 @@ void QAuth::Private::dataPending() {
         case AUTHENTICATED: {
             QString user;
             str >> user;
-            emit auth->authenticated(user);
+            // TODO
+            emit auth->authentication(user, true);
             break;
         }
         case SESSION_OPENED: {
-            emit auth->sessionOpened();
+            // TODO
+            emit auth->session(true);
             break;
         }
         default: {
-            emit auth->internalError(QString("QAuth: Unexpected value received: %1").arg(m));
+            emit auth->error(QString("QAuth: Unexpected value received: %1").arg(m));
         }
     }
-    */
 }
 
 void QAuth::Private::childExited(int exitCode, QProcess::ExitStatus exitStatus) {

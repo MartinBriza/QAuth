@@ -18,15 +18,9 @@
  *
  */
 
-#include "QAuth.h"
-
-class QAuthPrompt::Private {
-public:
-    QAuthPrompt::Type type;
-    QByteArray response;
-    QString message;
-    bool hidden;
-};
+#include "prompt.h"
+#include "prompt_p.h"
+#include "lib/qauth.h"
 
 QAuthPrompt::Type QAuthPrompt::type() const {
     return d->type;
@@ -51,4 +45,4 @@ bool QAuthPrompt::hidden() const {
     return d->hidden;
 }
 
-#include "QAuthPrompt.moc"
+#include "moc_prompt.moc"

@@ -4,43 +4,47 @@ include_directories(common)
 include_directories(${CMAKE_BINARY_DIR}/src/common)
 
 
-set(QAuth_SRCS
+set(Helper_SRCS
     app/backend/PasswdBackend.cpp
     app/Backend.cpp
     app/QAuthApp.cpp
     app/Session.cpp
+    common/QAuthPrompt.cpp
+    common/QAuthRequest.cpp
 )
 
 if(PAM_FOUND)
-    set(QAuth_SRCS ${QAuth_SRCS}
+    set(Helper_SRCS ${Helper_SRCS}
         app/backend/PamHandle.cpp
         app/backend/PamBackend.cpp
     )
 endif()
 
-add_executable(QAuthHelper ${QAuth_SRCS})
-target_link_libraries(QAuthHelper ${QT_QTCORE_LIBRARY} ${QT_QTNETWORK_LIBRARY})
+add_executable(qauthhelper ${Helper_SRCS})
+target_link_libraries(qauthhelper ${QT_QTCORE_LIBRARY} ${QT_QTNETWORK_LIBRARY})
 if(PAM_FOUND)
-    target_link_libraries(QAuthHelper ${PAM_LIBRARIES})
+    target_link_libraries(qauthhelper ${PAM_LIBRARIES})
 else()
-    target_link_libraries(QAuthHelper crypt)
+    target_link_libraries(qauthhelper crypt)
 endif()
 
-install(TARGETS QAuthHelper RUNTIME DESTINATION ${LIBEXEC_INSTALL_DIR})
+install(TARGETS qauthhelper RUNTIME DESTINATION ${LIBEXEC_INSTALL_DIR})
 
 
 set(libQAuth_SRCS
+    common/QAuthPrompt.cpp
+    common/QAuthRequest.cpp
     lib/QAuth.cpp
-    lib/QAuthPrompt.cpp
-    lib/QAuthRequest.cpp
 )
 
-add_library(QAuth SHARED ${libQAuth_SRCS})
-target_link_libraries(QAuth ${QT_QTCORE_LIBRARY} ${QT_QTNETWORK_LIBRARY})
+add_library(qauth SHARED ${libQAuth_SRCS})
+target_link_libraries(qauth ${QT_QTCORE_LIBRARY} ${QT_QTNETWORK_LIBRARY})
 
-install(TARGETS QAuth LIBRARY DESTINATION ${LIB_INSTALL_DIR})
+install(TARGETS qauth LIBRARY DESTINATION ${LIB_INSTALL_DIR})
 install(FILES
+    common/prompt.h
+    common/request.h
     lib/QAuth
-    lib/QAuth.h
+    lib/qauth.h
     DESTINATION
     ${INCLUDE_INSTALL_DIR} COMPONENT Devel)
