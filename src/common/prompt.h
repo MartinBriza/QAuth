@@ -67,13 +67,9 @@ public:
     void setResponse(const QByteArray &r);
 Q_SIGNALS:
     void responseChanged();
-private:
+public:
     class Private;
     Private *d { nullptr };
-    friend class QAuth;
-    friend class QAuthRequest;
-    friend QDataStream& operator<<(QDataStream &s, const QAuthPrompt &m);
-    friend QDataStream& operator>>(QDataStream &s, QAuthPrompt &m);
 };
 
 #endif //PROMPT_H

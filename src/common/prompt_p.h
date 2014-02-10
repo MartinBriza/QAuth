@@ -1,3 +1,5 @@
+#ifndef PROMPT_P_H
+#define PROMPT_P_H
 
 class QAuthPrompt::Private {
 public:
@@ -6,3 +8,5 @@ public:
     QString message;
     bool hidden;
 };
+
+#endif // PROMPT_P_H

@@ -22,6 +22,11 @@
 #include "request_p.h"
 #include "lib/qauth.h"
 
+QAuthRequest::QAuthRequest(QObject *parent)
+        : QObject(parent)
+        , d(new Private) {
+}
+
 QString QAuthRequest::info() const {
     return d->info;
 }

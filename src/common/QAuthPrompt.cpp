@@ -22,6 +22,11 @@
 #include "prompt_p.h"
 #include "lib/qauth.h"
 
+QAuthPrompt::QAuthPrompt(QAuthRequest *parent)
+        : QObject(parent)
+        , d(new Private) {
+}
+
 QAuthPrompt::Type QAuthPrompt::type() const {
     return d->type;
 }

@@ -23,6 +23,7 @@
 #include "app/Session.h"
 
 #include "Messages.h"
+#include "lib/qauth.h"
 
 #include <QtCore/QString>
 #include <QDebug>
@@ -97,48 +98,52 @@ int PamBackend::converse(int n, const struct pam_message **msg, struct pam_respo
 
     bool failed = false;
 
-    //QAuthRequest *request = new QAuthRequest(this);
+    QAuthRequest *request = new QAuthRequest(this);
 
     for (int i = 0; i < n; ++i) {
-        //QAuthPrompt *p = new QAuthPrompt(request);
-        switch (msg[i]->msg_style) {
-            case PAM_PROMPT_ECHO_OFF: {
-                qDebug() << " AUTH: PAM: Prompt, echo off..." << msg[i]->msg;
-                QByteArray response = m_app->prompt(QString(msg[i]->msg), false);
-                aresp[i].resp = (char *) malloc(response.length() + 1);
-                if (aresp[i].resp == nullptr) {
-                    failed = true;
-                }
-                else {
-                    memcpy(aresp[i].resp, response.data(), response.length());
-                    aresp[i].resp[response.length()] = '\0';
-                }
-                break;
-            }
-            case PAM_PROMPT_ECHO_ON: {
-                qDebug() << " AUTH: PAM: Prompt, echo on..." << msg[i]->msg;
-                QByteArray response = m_app->prompt(QString(msg[i]->msg), true);
-                aresp[i].resp = (char *) malloc(response.length() + 1);
-                if (aresp[i].resp == nullptr) {
-                    failed = true;
-                }
-                else {
-                    memcpy(aresp[i].resp, response.data(), response.length());
-                    aresp[i].resp[response.length()] = '\0';
-                }
-                break;
-            }
-            case PAM_ERROR_MSG:
-                qDebug() << " AUTH: PAM: Error" << msg[i]->msg;
-                m_app->error(QString(msg[i]->msg));
-                break;
-            case PAM_TEXT_INFO:
-                qDebug() << " AUTH: PAM: Info" << msg[i]->msg;
-                m_app->info(QString(msg[i]->msg));
-                break;
-            default:
-                failed = true;
+        if (msg[i]->msg_style == PAM_PROMPT_ECHO_OFF || msg[i]->msg_style == PAM_PROMPT_ECHO_ON) {
+            QAuthPrompt *p = new QAuthPrompt(request);
+            p->d->hidden = msg[i]->msg_style == PAM_PROMPT_ECHO_OFF;
+            p->d->message = msg[i]->msg;
+            // TODO MORE TYPES WILL GO HERE
+            p->d->type = msg[i]->msg_style == PAM_PROMPT_ECHO_OFF ? QAuthPrompt::LOGIN_PASSWORD : QAuthPrompt::LOGIN_USER;
+            request->d->prompts << p;
         }
+        else if (msg[i]->msg_style == PAM_TEXT_INFO) {
+            qDebug() << " AUTH: PAM: Info" << msg[i]->msg;
+            request->d->info = msg[i]->msg;
+            break;
+        }
+        else if (msg[i]->msg_style == PAM_ERROR_MSG) {
+            qDebug() << " AUTH: PAM: Error" << msg[i]->msg;
+            m_app->error(QString(msg[i]->msg));
+            break;
+        }
+        else {
+            failed = true;
+        }
+    }
+
+    // TODO HERE SEND AND WAIT FOR RESPONSE
+    QAuthRequest *response;
+    if (!failed && response->d->prompts.length() == request->d->prompts.length()) {
+        for (int i = 0; i < n; ++i) {
+            if (msg[i]->msg_style == PAM_PROMPT_ECHO_OFF || msg[i]->msg_style == PAM_PROMPT_ECHO_ON) {
+                QByteArray data = response->d->prompts.front()->d->response; // TODO hmmm
+                aresp[i].resp = (char *) malloc(data.length() + 1);
+                if (aresp[i].resp == nullptr) {
+                    failed = true;
+                    break;
+                }
+                else {
+                    memcpy(aresp[i].resp, data.data(), data.length());
+                    aresp[i].resp[data.length()] = '\0';
+                }
+            }
+        }
+    }
+    else {
+        failed = true;
     }
 
     if (failed) {

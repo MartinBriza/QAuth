@@ -57,13 +57,9 @@ public Q_SLOTS:
     void done();
 Q_SIGNALS:
     void finished();
-private:
+public:
     class Private;
     Private *d { nullptr };
-    friend class QAuth;
-    friend class QAuthPrompt;
-    friend QDataStream& operator<<(QDataStream &s, const QAuthRequest &m);
-    friend QDataStream& operator>>(QDataStream &s, QAuthRequest &m);
 };
 
 #endif //REQUEST_H
