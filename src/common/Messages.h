@@ -37,7 +37,7 @@ public:
 class Request {
 public:
     QString info;
-    QList<Prompt*> prompts;
+    QList<Prompt> prompts;
 };
 
 enum Msg {
@@ -104,20 +104,20 @@ inline QDataStream& operator>>(QDataStream &s, Prompt &m) {
 inline QDataStream& operator<<(QDataStream &s, const Request &m) {
     qint32 length = m.prompts.length();
     s << m.info << length;
-    Q_FOREACH(Prompt *p, m.prompts) {
-        s << (*p);
+    Q_FOREACH(Prompt p, m.prompts) {
+        s << p;
     }
     return s;
 }
 
 inline QDataStream& operator>>(QDataStream &s, Request &m) {
     QString info;
-    QList<Prompt*> prompts;
+    QList<Prompt> prompts;
     qint32 length;
     s >> info >> length;
     for (int i = 0; i < length; i++) {
-        Prompt *p = new Prompt;
-        s >> (*p);
+        Prompt p;
+        s >> p;
         prompts << p;
     }
     m.info = info;

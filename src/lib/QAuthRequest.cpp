@@ -23,14 +23,20 @@
 
 #include "Messages.h"
 
-class QAuthRequest::Private : public Request {
+class QAuthRequest::Private {
 public:
-
+    QString info;
+    QList<QAuthPrompt*> prompts;
 };
 
-QAuthRequest::QAuthRequest(QObject *parent)
+QAuthRequest::QAuthRequest(Request *request, QAuth *parent)
         : QObject(parent)
         , d(new Private) {
+    d->info = request->info;
+    Q_FOREACH (const Prompt& p, request->prompts) {
+        QAuthPrompt *qap = new QAuthPrompt(this);
+        qap->d = p;
+    }
 }
 
 QString QAuthRequest::info() const {

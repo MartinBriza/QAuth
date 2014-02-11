@@ -25,6 +25,7 @@
 
 class QAuth;
 class QAuthPrompt;
+class Request;
 /**
  * \brief
  * QAuthRequest is the main class for tracking requests from the underlying auth stack
@@ -57,7 +58,7 @@ public Q_SLOTS:
 Q_SIGNALS:
     void finished();
 private:
-    QAuthRequest(QObject *parent = 0);
+    QAuthRequest(Request *request, QAuth *parent = 0);
     friend class QAuth;
     class Private;
     Private *d { nullptr };
