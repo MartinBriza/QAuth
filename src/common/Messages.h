@@ -25,8 +25,20 @@
 #include <QProcessEnvironment>
 
 #include "lib/qauth.h"
-#include "prompt_p.h"
-#include "request_p.h"
+
+class Prompt {
+public:
+    QAuthPrompt::Type type;
+    QByteArray response;
+    QString message;
+    bool hidden;
+};
+
+class Request {
+public:
+    QString info;
+    QList<Prompt*> prompts;
+};
 
 enum Msg {
     HELLO = 1,
@@ -65,50 +77,51 @@ inline QDataStream& operator>>(QDataStream &s, QProcessEnvironment &m) {
     return s;
 }
 
-inline QDataStream& operator<<(QDataStream &s, const QAuthPrompt &m) {
-    if (m.response().isEmpty()) {
-        s << qint32(m.type()) << m.message() << m.hidden() << m.response();
+inline QDataStream& operator<<(QDataStream &s, const Prompt &m) {
+    if (m.response.isEmpty()) {
+        s << qint32(m.type) << m.message << m.hidden << m.response;
     }
     else {
-        s << qint32(QAuthPrompt::NONE) << QString() << false << m.response();
+        s << qint32(QAuthPrompt::NONE) << QString() << false << m.response;
     }
     return s;
 }
 
-inline QDataStream& operator>>(QDataStream &s, QAuthPrompt &m) {
+inline QDataStream& operator>>(QDataStream &s, Prompt &m) {
     qint32 type;
     QString message;
     bool hidden;
     QByteArray response;
     s >> type >> message >> hidden >> response;
-    m.d->type = QAuthPrompt::Type(type);
-    m.d->message = message;
-    m.d->hidden = hidden;
+    m.type = QAuthPrompt::Type(type);
+    m.message = message;
+    m.hidden = hidden;
     if (!response.isEmpty())
-        m.d->response = response;
+        m.response = response;
     return s;
 }
 
-inline QDataStream& operator<<(QDataStream &s, const QAuthRequest &m) {
-    s << m.info() << m.prompts().length();
-    Q_FOREACH(QAuthPrompt *p, m.prompts()) {
+inline QDataStream& operator<<(QDataStream &s, const Request &m) {
+    qint32 length = m.prompts.length();
+    s << m.info << length;
+    Q_FOREACH(Prompt *p, m.prompts) {
         s << (*p);
     }
     return s;
 }
 
-inline QDataStream& operator>>(QDataStream &s, QAuthRequest &m) {
+inline QDataStream& operator>>(QDataStream &s, Request &m) {
     QString info;
-    QList<QAuthPrompt*> prompts;
-    int length;
+    QList<Prompt*> prompts;
+    qint32 length;
     s >> info >> length;
     for (int i = 0; i < length; i++) {
-        QAuthPrompt *p = new QAuthPrompt(&m);
+        Prompt *p = new Prompt;
         s >> (*p);
         prompts << p;
     }
-    m.d->info = info;
-    m.d->prompts = prompts;
+    m.info = info;
+    m.prompts = prompts;
     return s;
 }
 

@@ -97,7 +97,7 @@ int PamBackend::converse(int n, const struct pam_message **msg, struct pam_respo
         return PAM_BUF_ERR;
 
     bool failed = false;
-
+#if 0
     QAuthRequest *request = new QAuthRequest(this);
 
     for (int i = 0; i < n; ++i) {
@@ -145,7 +145,7 @@ int PamBackend::converse(int n, const struct pam_message **msg, struct pam_respo
     else {
         failed = true;
     }
-
+#endif
     if (failed) {
         for (int i = 0; i < n; ++i) {
             if (aresp[i].resp != nullptr) {

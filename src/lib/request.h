@@ -50,14 +50,15 @@ class QAuthRequest : public QObject {
     Q_PROPERTY(QString info READ info)
     Q_PROPERTY(QList<QAuthPrompt*> prompts READ prompts)
 public:
-    QAuthRequest(QObject *parent = 0);
     QString info() const;
     QList<QAuthPrompt*> prompts() const;
 public Q_SLOTS:
     void done();
 Q_SIGNALS:
     void finished();
-public:
+private:
+    QAuthRequest(QObject *parent = 0);
+    friend class QAuth;
     class Private;
     Private *d { nullptr };
 };

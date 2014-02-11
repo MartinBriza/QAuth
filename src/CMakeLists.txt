@@ -9,8 +9,6 @@ set(Helper_SRCS
     app/Backend.cpp
     app/QAuthApp.cpp
     app/Session.cpp
-    common/QAuthPrompt.cpp
-    common/QAuthRequest.cpp
 )
 
 if(PAM_FOUND)
@@ -32,9 +30,9 @@ install(TARGETS qauthhelper RUNTIME DESTINATION ${LIBEXEC_INSTALL_DIR})
 
 
 set(libQAuth_SRCS
-    common/QAuthPrompt.cpp
-    common/QAuthRequest.cpp
     lib/QAuth.cpp
+    lib/QAuthPrompt.cpp
+    lib/QAuthRequest.cpp
 )
 
 add_library(qauth SHARED ${libQAuth_SRCS})

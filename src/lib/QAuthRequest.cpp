@@ -19,8 +19,14 @@
  */
 
 #include "request.h"
-#include "request_p.h"
 #include "lib/qauth.h"
+
+#include "Messages.h"
+
+class QAuthRequest::Private : public Request {
+public:
+
+};
 
 QAuthRequest::QAuthRequest(QObject *parent)
         : QObject(parent)
@@ -28,11 +34,11 @@ QAuthRequest::QAuthRequest(QObject *parent)
 }
 
 QString QAuthRequest::info() const {
-    return d->info;
+//     return d->info;
 }
 
 QList<QAuthPrompt*> QAuthRequest::prompts() const {
-    return d->prompts;
+//     return d->prompts;
 }
 
 void QAuthRequest::done() {

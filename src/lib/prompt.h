@@ -47,7 +47,6 @@ class QAuthPrompt : public QObject {
     Q_PROPERTY(bool hidden READ hidden)
     Q_PROPERTY(QByteArray response READ response WRITE setResponse NOTIFY responseChanged)
 public:
-    QAuthPrompt(QAuthRequest *parent = 0);
     /**
      * \note In hex not for binary operations but to leave space for adding other codes
      */
@@ -67,7 +66,9 @@ public:
     void setResponse(const QByteArray &r);
 Q_SIGNALS:
     void responseChanged();
-public:
+private:
+    QAuthPrompt(QAuthRequest *parent = 0);
+    friend class QAuthRequest;
     class Private;
     Private *d { nullptr };
 };

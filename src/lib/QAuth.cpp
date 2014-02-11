@@ -129,12 +129,8 @@ void QAuth::Private::dataPending() {
             break;
         }
         case REQUEST: {
-            if (request)
-                request->deleteLater();
-            request = new QAuthRequest(auth);
-            connect(request, SIGNAL(finished()), this, SLOT(finalizeRequest()));
-            str >> (*request);
-            emit auth->request(request);
+            Request r;
+            str >> r;
             break;
         }
         case ENVIRONMENT: {
