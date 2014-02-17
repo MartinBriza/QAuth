@@ -97,21 +97,21 @@ int PamBackend::converse(int n, const struct pam_message **msg, struct pam_respo
         return PAM_BUF_ERR;
 
     bool failed = false;
-#if 0
-    QAuthRequest *request = new QAuthRequest(this);
+
+    Request request;
 
     for (int i = 0; i < n; ++i) {
         if (msg[i]->msg_style == PAM_PROMPT_ECHO_OFF || msg[i]->msg_style == PAM_PROMPT_ECHO_ON) {
-            QAuthPrompt *p = new QAuthPrompt(request);
-            p->d->hidden = msg[i]->msg_style == PAM_PROMPT_ECHO_OFF;
-            p->d->message = msg[i]->msg;
+            Prompt p;
+            p.hidden = msg[i]->msg_style == PAM_PROMPT_ECHO_OFF;
+            p.message = msg[i]->msg;
             // TODO MORE TYPES WILL GO HERE
-            p->d->type = msg[i]->msg_style == PAM_PROMPT_ECHO_OFF ? QAuthPrompt::LOGIN_PASSWORD : QAuthPrompt::LOGIN_USER;
-            request->d->prompts << p;
+            p.type = msg[i]->msg_style == PAM_PROMPT_ECHO_OFF ? QAuthPrompt::LOGIN_PASSWORD : QAuthPrompt::LOGIN_USER;
+            request.prompts << p;
         }
         else if (msg[i]->msg_style == PAM_TEXT_INFO) {
             qDebug() << " AUTH: PAM: Info" << msg[i]->msg;
-            request->d->info = msg[i]->msg;
+            request.info = msg[i]->msg;
             break;
         }
         else if (msg[i]->msg_style == PAM_ERROR_MSG) {
@@ -125,11 +125,11 @@ int PamBackend::converse(int n, const struct pam_message **msg, struct pam_respo
     }
 
     // TODO HERE SEND AND WAIT FOR RESPONSE
-    QAuthRequest *response;
-    if (!failed && response->d->prompts.length() == request->d->prompts.length()) {
+    Request response;
+    if (!failed && response.prompts.length() == request.prompts.length()) {
         for (int i = 0; i < n; ++i) {
             if (msg[i]->msg_style == PAM_PROMPT_ECHO_OFF || msg[i]->msg_style == PAM_PROMPT_ECHO_ON) {
-                QByteArray data = response->d->prompts.front()->d->response; // TODO hmmm
+                QByteArray data = response.prompts.front().response;
                 aresp[i].resp = (char *) malloc(data.length() + 1);
                 if (aresp[i].resp == nullptr) {
                     failed = true;
@@ -139,13 +139,14 @@ int PamBackend::converse(int n, const struct pam_message **msg, struct pam_respo
                     memcpy(aresp[i].resp, data.data(), data.length());
                     aresp[i].resp[data.length()] = '\0';
                 }
+                response.prompts.pop_front();
             }
         }
     }
     else {
         failed = true;
     }
-#endif
+
     if (failed) {
         for (int i = 0; i < n; ++i) {
             if (aresp[i].resp != nullptr) {
