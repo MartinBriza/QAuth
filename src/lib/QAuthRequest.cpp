@@ -29,22 +29,21 @@ public:
     QList<QAuthPrompt*> prompts;
 };
 
-QAuthRequest::QAuthRequest(Request *request, QAuth *parent)
+QAuthRequest::QAuthRequest(const Request *request, QAuth *parent)
         : QObject(parent)
         , d(new Private) {
     d->info = request->info;
     Q_FOREACH (const Prompt& p, request->prompts) {
-        QAuthPrompt *qap = new QAuthPrompt(this);
-        qap->d = p;
+        d->prompts << new QAuthPrompt(&p, this);
     }
 }
 
 QString QAuthRequest::info() const {
-//     return d->info;
+    return d->info;
 }
 
 QList<QAuthPrompt*> QAuthRequest::prompts() const {
-//     return d->prompts;
+    return d->prompts;
 }
 
 void QAuthRequest::done() {

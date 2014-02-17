@@ -58,7 +58,7 @@ public Q_SLOTS:
 Q_SIGNALS:
     void finished();
 private:
-    QAuthRequest(Request *request, QAuth *parent = 0);
+    QAuthRequest(const Request *request, QAuth *parent = 0);
     friend class QAuth;
     class Private;
     Private *d { nullptr };

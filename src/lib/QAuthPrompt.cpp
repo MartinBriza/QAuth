@@ -24,36 +24,35 @@
 #include "Messages.h"
 
 class QAuthPrompt::Private : public Prompt {
-public:
-
 };
 
-QAuthPrompt::QAuthPrompt(QAuthRequest *parent)
+QAuthPrompt::QAuthPrompt(const Prompt *prompt, QAuthRequest *parent)
         : QObject(parent)
         , d(new Private) {
+    *d = *static_cast<const QAuthPrompt::Private*>(prompt);
 }
 
 QAuthPrompt::Type QAuthPrompt::type() const {
-//     return d->type;
+    return d->type;
 }
 
 QString QAuthPrompt::message() const {
-//     return d->message;
+    return d->message;
 }
 
 QByteArray QAuthPrompt::response() const {
-//     return d->response;
+    return d->response;
 }
 
 void QAuthPrompt::setResponse(const QByteArray &r) {
-//     if (r != d->response) {
-//         d->response = r;
+    if (r != d->response) {
         emit responseChanged();
-//     }
+        d->response = r;
+    }
 }
 
 bool QAuthPrompt::hidden() const {
-//     return d->hidden;
+    return d->hidden;
 }
 
 #include "moc_prompt.moc"

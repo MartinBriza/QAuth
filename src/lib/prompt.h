@@ -25,6 +25,7 @@
 
 class QAuth;
 class QAuthRequest;
+class Prompt;
 /**
  * \brief
  * One prompt input for the authentication
@@ -67,7 +68,7 @@ public:
 Q_SIGNALS:
     void responseChanged();
 private:
-    QAuthPrompt(QAuthRequest *parent = 0);
+    QAuthPrompt(const Prompt *prompt, QAuthRequest *parent = 0);
     friend class QAuthRequest;
     class Private;
     Private *d { nullptr };
