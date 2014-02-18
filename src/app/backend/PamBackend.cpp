@@ -124,12 +124,13 @@ int PamBackend::converse(int n, const struct pam_message **msg, struct pam_respo
         }
     }
 
-    // TODO HERE SEND AND WAIT FOR RESPONSE
-    Request response;
+    Request response = m_app->request(request);
+
     if (!failed && response.prompts.length() == request.prompts.length()) {
+        auto it = response.prompts.begin();
         for (int i = 0; i < n; ++i) {
             if (msg[i]->msg_style == PAM_PROMPT_ECHO_OFF || msg[i]->msg_style == PAM_PROMPT_ECHO_ON) {
-                QByteArray data = response.prompts.front().response;
+                QByteArray data = (*it).response;
                 aresp[i].resp = (char *) malloc(data.length() + 1);
                 if (aresp[i].resp == nullptr) {
                     failed = true;
@@ -139,7 +140,7 @@ int PamBackend::converse(int n, const struct pam_message **msg, struct pam_respo
                     memcpy(aresp[i].resp, data.data(), data.length());
                     aresp[i].resp[data.length()] = '\0';
                 }
-                response.prompts.pop_front();
+                it++;
             }
         }
     }

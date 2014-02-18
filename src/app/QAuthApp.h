@@ -24,6 +24,8 @@
 #include <QtCore/QCoreApplication>
 #include <QProcessEnvironment>
 
+#include "Messages.h"
+
 class Backend;
 class Session;
 class QLocalSocket;
@@ -44,8 +46,7 @@ public:
     };
 
 public slots:
-    QByteArray prompt(const QString &message, bool echo);
-    void info(const QString &message);
+    Request request(const Request &request);
     void error(const QString &message);
     QProcessEnvironment requestEnvironment();
     void authenticated(const QString &user);
