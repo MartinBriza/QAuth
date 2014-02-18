@@ -132,6 +132,8 @@ void QAuth::Private::dataPending() {
             Request r;
             str >> r;
             request = new QAuthRequest(&r, auth);
+            connect(request, SIGNAL(finished()), this, SLOT(requestFinished()));
+            emit auth->request(request);
             break;
         }
         case ENVIRONMENT: {
@@ -143,12 +145,10 @@ void QAuth::Private::dataPending() {
         case AUTHENTICATED: {
             QString user;
             str >> user;
-            // TODO
             emit auth->authentication(user, true);
             break;
         }
         case SESSION_OPENED: {
-            // TODO
             emit auth->session(true);
             break;
         }
@@ -159,17 +159,14 @@ void QAuth::Private::dataPending() {
 }
 
 void QAuth::Private::childExited(int exitCode, QProcess::ExitStatus exitStatus) {
-    /*
     if (exitStatus == QProcess::NormalExit)
         emit qobject_cast<QAuth*>(parent())->finished(exitCode);
     else
-        emit qobject_cast<QAuth*>(parent())->internalError(child->errorString());
-    */
+        emit qobject_cast<QAuth*>(parent())->error(child->errorString());
 }
 
 void QAuth::Private::childError(QProcess::ProcessError error) {
-    Q_UNUSED(error);
-//     emit qobject_cast<QAuth*>(parent())->internalError(child->errorString());
+    emit qobject_cast<QAuth*>(parent())->error(child->errorString());
 }
 
 void QAuth::Private::requestFinished() {

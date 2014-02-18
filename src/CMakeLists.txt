@@ -40,9 +40,9 @@ target_link_libraries(qauth ${QT_QTCORE_LIBRARY} ${QT_QTNETWORK_LIBRARY})
 
 install(TARGETS qauth LIBRARY DESTINATION ${LIB_INSTALL_DIR})
 install(FILES
-    common/prompt.h
-    common/request.h
     lib/QAuth
+    lib/prompt.h
     lib/qauth.h
+    lib/request.h
     DESTINATION
     ${INCLUDE_INSTALL_DIR} COMPONENT Devel)

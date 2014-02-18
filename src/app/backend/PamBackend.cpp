@@ -124,7 +124,11 @@ int PamBackend::converse(int n, const struct pam_message **msg, struct pam_respo
         }
     }
 
+    qDebug() << " AUTH: PAM: Request prepared, creating a response";
+
     Request response = m_app->request(request);
+
+    qDebug() << " AUTH: PAM: Response received, handling...";
 
     if (!failed && response.prompts.length() == request.prompts.length()) {
         auto it = response.prompts.begin();
