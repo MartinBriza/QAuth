@@ -22,19 +22,20 @@
 #define CHECKPASSAPP_H
 
 #include <QtCore/QCoreApplication>
+#include <QAuth>
 
-class CheckPass;
 class CheckPassApp : public QCoreApplication
 {
     Q_OBJECT
 public:
     CheckPassApp(int& argc, char** argv);
     virtual ~CheckPassApp();
-
 private:
-    CheckPass *m_auth;
+    QAuth *m_auth;
 private slots:
-    void handleResult(int code);
+    void handleResult(bool status);
+    void handleRequest(QAuthRequest *request);
+    void displayError(QString message);
 };
 
 #endif // CHECKPASSAPP_H

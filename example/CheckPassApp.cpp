@@ -24,30 +24,13 @@
 #include <iostream>
 #include <string>
 
-class CheckPass : public QAuth {
-    Q_OBJECT
-public:
-    CheckPass(QObject *parent) : QAuth(parent) {}
-protected:
-    virtual QByteArray prompt(const QString &message, bool echo = false) {
-        std::string input;
-        std::cout << message.toStdString();
-        std::cin >> input;
-        return input.c_str();
-    }
-    virtual void info(const QString &message) {
-        std::cout << message.toStdString() << std::endl;
-    }
-    virtual void error(const QString &message) {
-        std::cerr << message.toStdString() << std::endl;
-    }
-};
-
 CheckPassApp::CheckPassApp(int& argc, char** argv)
         : QCoreApplication(argc, argv)
-        , m_auth(new CheckPass(this)) {
-    m_auth->setVerbosity(true);
-    connect(m_auth, SIGNAL(finished(int)), this, SLOT(handleResult(int)));
+        , m_auth(new QAuth(this)) {
+    m_auth->setVerbose(true);
+    connect(m_auth, SIGNAL(finished(bool)), this, SLOT(handleResult(bool)));
+    connect(m_auth, SIGNAL(request(QAuthRequest*)), this, SLOT(handleRequest(QAuthRequest*)));
+    connect(m_auth, SIGNAL(error(QString)), this, SLOT(displayError(QString)));
     m_auth->start();
 }
 
@@ -55,8 +38,23 @@ CheckPassApp::~CheckPassApp() {
 
 }
 
-void CheckPassApp::handleResult(int code) {
-    exit(code);
+void CheckPassApp::displayError(QString message) {
+    std::cerr << message.toStdString() << std::endl;
+}
+
+void CheckPassApp::handleResult(bool status) {
+    exit(!status);
+}
+
+void CheckPassApp::handleRequest(QAuthRequest* request) {
+    std::cout << request->prompts().length() << " requests: " << request->info().toStdString() << std::endl;
+    Q_FOREACH (QAuthPrompt *p, request->prompts()) {
+        std::string response;
+        std::cout << p->message().toStdString();
+        std::cin >> response;
+        p->setResponse(response.c_str());
+    }
+    request->done();
 }
 
 int main(int argc, char** argv) {

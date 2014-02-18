@@ -6,7 +6,7 @@ set(checkpass_SRCS
 )
 
 add_executable(checkpass ${checkpass_SRCS})
-target_link_libraries(checkpass QAuth ${QT_QTCORE_LIBRARY})
+target_link_libraries(checkpass qauth ${QT_QTCORE_LIBRARY})
 
 
 configure_file(minimaldm.service.in minimaldm.service IMMEDIATE @ONLY)
@@ -16,7 +16,7 @@ set(minimaldm_SRCS
 )
 
 add_executable(minimaldm ${minimaldm_SRCS})
-target_link_libraries(minimaldm QAuth ${QT_QTCORE_LIBRARY})
+target_link_libraries(minimaldm qauth ${QT_QTCORE_LIBRARY})
 
 if (INSTALL_MINIMALDM)
     execute_process(COMMAND ${PKG_CONFIG_EXECUTABLE} --variable=systemdsystemunitdir systemd OUTPUT_VARIABLE SYSTEMD_UNIT_DIR)
