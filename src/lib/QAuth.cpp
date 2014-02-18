@@ -30,7 +30,7 @@
 
 #include <unistd.h>
 
-class SocketServer : public QLocalServer {
+class QAuth::SocketServer : public QLocalServer {
     Q_OBJECT
 public slots:
     void incomingConnection();
@@ -39,11 +39,11 @@ public:
 
     QMap<qint64, QAuth::Private*> helpers;
 private:
-    static SocketServer *self;
+    static QAuth::SocketServer *self;
     SocketServer();
 };
 
-SocketServer *SocketServer::self = nullptr;
+QAuth::SocketServer *QAuth::SocketServer::self = nullptr;
 
 class QAuth::Private : public QObject {
     Q_OBJECT
@@ -54,7 +54,7 @@ public slots:
     void dataPending();
     void childExited(int exitCode, QProcess::ExitStatus exitStatus);
     void childError(QProcess::ProcessError error);
-    void finalizeRequest();
+    void requestFinished();
 public:
     QAuthRequest *request { nullptr };
     QProcess *child { nullptr };
@@ -70,12 +70,12 @@ qint64 QAuth::Private::lastId = 1;
 
 
 
-SocketServer::SocketServer()
+QAuth::SocketServer::SocketServer()
         : QLocalServer() {
     connect(this, SIGNAL(newConnection()), this, SLOT(incomingConnection()));
 }
 
-void SocketServer::incomingConnection()  {
+void QAuth::SocketServer::incomingConnection()  {
     while (hasPendingConnections()) {
         Msg m;
         qint64 id;
@@ -91,7 +91,7 @@ void SocketServer::incomingConnection()  {
     }
 }
 
-SocketServer* SocketServer::instance() {
+QAuth::SocketServer* QAuth::SocketServer::instance() {
     if (!self) {
         self = new SocketServer();
         // TODO until i'm not too lazy to actually hash something
@@ -131,6 +131,7 @@ void QAuth::Private::dataPending() {
         case REQUEST: {
             Request r;
             str >> r;
+            request = new QAuthRequest(&r, auth);
             break;
         }
         case ENVIRONMENT: {
@@ -171,7 +172,10 @@ void QAuth::Private::childError(QProcess::ProcessError error) {
 //     emit qobject_cast<QAuth*>(parent())->internalError(child->errorString());
 }
 
-
+void QAuth::Private::requestFinished() {
+    QDataStream str(socket);
+    str << REQUEST << request->request();
+}
 
 QAuth::QAuth(const QString &user, const QString &session, bool autologin, QObject *parent, bool verbose)
         : QObject(parent)
@@ -245,3 +249,4 @@ QProcessEnvironment QAuth::provideEnvironment() {
 }
 
 #include "QAuth.moc"
+#include "moc_qauth.moc"

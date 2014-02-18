@@ -59,6 +59,7 @@ Q_SIGNALS:
     void finished();
 private:
     QAuthRequest(const Request *request, QAuth *parent = 0);
+    Request request() const;
     friend class QAuth;
     class Private;
     Private *d { nullptr };

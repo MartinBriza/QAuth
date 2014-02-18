@@ -55,7 +55,6 @@ class QAuth : public QObject {
     Q_PROPERTY(QString user READ user WRITE setUser)
     Q_PROPERTY(QString session READ session WRITE setSession)
 public:
-    class Private;
     explicit QAuth(const QString &user = QString(), const QString &session = QString(), bool autologin = false, QObject *parent = 0, bool verbose = false);
     explicit QAuth(QObject *parent);
     virtual ~QAuth();
@@ -110,7 +109,10 @@ protected:
     virtual QProcessEnvironment provideEnvironment();
 
 private:
+    class Private;
+    class SocketServer;
     friend Private;
+    friend SocketServer;
     Private *d { nullptr };
 };
 

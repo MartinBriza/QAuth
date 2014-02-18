@@ -47,7 +47,21 @@ QList<QAuthPrompt*> QAuthRequest::prompts() const {
 }
 
 void QAuthRequest::done() {
-    // TODO
+    emit finished();
+}
+
+Request QAuthRequest::request() const {
+    Request r;
+    r.info = d->info;
+    Q_FOREACH (const QAuthPrompt* qap, d->prompts) {
+        Prompt p;
+        p.hidden = qap->hidden();
+        p.message = qap->message();
+        p.response = qap->response();
+        p.type = qap->type();
+        r.prompts << p;
+    }
+    return r;
 }
 
 #include "moc_request.moc"
