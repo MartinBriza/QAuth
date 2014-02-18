@@ -36,9 +36,6 @@ class Prompt;
  * \warning Don't use the \ref message property if you have your own strings for
  *      the \ref Type -s. PAM sends horrible horrible stuff and passwd obviously
  *      doesn't tell us a thing.
- *
- * \todo maybe I should remove the protected setters and move the private classes 
- * into headers I can access from other classes
  */
 class QAuthPrompt : public QObject {
     Q_OBJECT
