@@ -85,7 +85,7 @@ QString PamBackend::userName() {
 }
 
 int PamBackend::converse(int n, const struct pam_message **msg, struct pam_response **resp) {
-    qDebug() << " AUTH: PAM: Conversation...";
+    qDebug() << " AUTH: PAM: Conversation..." << n;
     struct pam_response *aresp;
 
     // check size of the message buffer
@@ -112,12 +112,11 @@ int PamBackend::converse(int n, const struct pam_message **msg, struct pam_respo
         else if (msg[i]->msg_style == PAM_TEXT_INFO) {
             qDebug() << " AUTH: PAM: Info" << msg[i]->msg;
             request.info = msg[i]->msg;
-            break;
         }
         else if (msg[i]->msg_style == PAM_ERROR_MSG) {
             qDebug() << " AUTH: PAM: Error" << msg[i]->msg;
             m_app->error(QString(msg[i]->msg));
-            break;
+            return PAM_SUCCESS;
         }
         else {
             failed = true;

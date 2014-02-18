@@ -120,40 +120,42 @@ void QAuth::Private::dataPending() {
     QAuth *auth = qobject_cast<QAuth*>(parent());
     Msg m;
     QDataStream str(socket);
-    str >> m;
-    switch (m) {
-        case ERROR: {
-            QString message;
-            str >> message;
-            auth->error(message);
-            break;
-        }
-        case REQUEST: {
-            Request r;
-            str >> r;
-            request = new QAuthRequest(&r, auth);
-            connect(request, SIGNAL(finished()), this, SLOT(requestFinished()));
-            emit auth->request(request);
-            break;
-        }
-        case ENVIRONMENT: {
-            QProcessEnvironment env = auth->provideEnvironment();
-            str << Msg::ENVIRONMENT << env;
-            socket->flush();
-            break;
-        }
-        case AUTHENTICATED: {
-            QString user;
-            str >> user;
-            emit auth->authentication(user, true);
-            break;
-        }
-        case SESSION_OPENED: {
-            emit auth->session(true);
-            break;
-        }
-        default: {
-            emit auth->error(QString("QAuth: Unexpected value received: %1").arg(m));
+    while (socket->bytesAvailable()) {
+        str >> m;
+        switch (m) {
+            case ERROR: {
+                QString message;
+                str >> message;
+                auth->error(message);
+                break;
+            }
+            case REQUEST: {
+                Request r;
+                str >> r;
+                request = new QAuthRequest(&r, auth);
+                connect(request, SIGNAL(finished()), this, SLOT(requestFinished()));
+                emit auth->request(request);
+                break;
+            }
+            case ENVIRONMENT: {
+                QProcessEnvironment env = auth->provideEnvironment();
+                str << Msg::ENVIRONMENT << env;
+                socket->waitForBytesWritten();
+                break;
+            }
+            case AUTHENTICATED: {
+                QString user;
+                str >> user;
+                emit auth->authentication(user, true);
+                break;
+            }
+            case SESSION_OPENED: {
+                emit auth->session(true);
+                break;
+            }
+            default: {
+                emit auth->error(QString("QAuth: Unexpected value received: %1").arg(m));
+            }
         }
     }
 }
@@ -172,6 +174,7 @@ void QAuth::Private::childError(QProcess::ProcessError error) {
 void QAuth::Private::requestFinished() {
     QDataStream str(socket);
     str << REQUEST << request->request();
+    socket->waitForBytesWritten();
 }
 
 QAuth::QAuth(const QString &user, const QString &session, bool autologin, QObject *parent, bool verbose)

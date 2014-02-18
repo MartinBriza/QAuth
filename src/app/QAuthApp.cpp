@@ -122,7 +122,7 @@ void QAuthApp::doAuth() {
 void QAuthApp::error(const QString& message) {
     QDataStream str(m_socket);
     str << Msg::ERROR << message;
-    m_socket->flush();
+    m_socket->waitForBytesWritten();
 }
 
 Request QAuthApp::request(const Request& request) {
@@ -130,7 +130,7 @@ Request QAuthApp::request(const Request& request) {
     Request response;
     QDataStream str(m_socket);
     str << Msg::REQUEST << request;
-    m_socket->flush();
+    m_socket->waitForBytesWritten();
     m_socket->waitForReadyRead(-1);
     str >> m >> response;
     qDebug() << "Received a response for a request";
@@ -146,7 +146,7 @@ QProcessEnvironment QAuthApp::requestEnvironment() {
     QProcessEnvironment response;
     QDataStream str(m_socket);
     str << Msg::ENVIRONMENT;
-    m_socket->flush();
+    m_socket->waitForBytesWritten();
     m_socket->waitForReadyRead(-1);
     str >> m >> response;
     qDebug() << "Received a response" << response.toStringList();
@@ -160,13 +160,13 @@ QProcessEnvironment QAuthApp::requestEnvironment() {
 void QAuthApp::authenticated(const QString &user) {
     QDataStream str(m_socket);
     str << Msg::AUTHENTICATED << user;
-    m_socket->flush();
+    m_socket->waitForBytesWritten();
 }
 
 void QAuthApp::sessionOpened() {
     QDataStream str(m_socket);
     str << Msg::AUTHENTICATED;
-    m_socket->flush();
+    m_socket->waitForBytesWritten();
 }
 
 Session *QAuthApp::session() {
