@@ -22,8 +22,8 @@
 #define MINIMALDMAPP_H
 
 #include <QtCore/QCoreApplication>
+#include <QAuth>
 
-class MinimalDM;
 class QProcess;
 class MinimalDMApp : public QCoreApplication
 {
@@ -35,10 +35,10 @@ public:
 private slots:
     void startX();
     void handleResult(int code);
+    void handleRequest(QAuthRequest *request);
 
 private:
-
-    MinimalDM *m_auth;
+    QAuth *m_auth;
     QProcess *m_displayServer { nullptr };
 };
 

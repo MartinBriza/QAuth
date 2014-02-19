@@ -26,36 +26,20 @@
 #include <iostream>
 #include <string>
 
-class MinimalDM : public QAuth {
-    Q_OBJECT
-public:
-    MinimalDM(QObject *parent) : QAuth(parent) {}
-    QString display { };
-protected:
-    virtual QProcessEnvironment provideEnvironment() {
-        QProcessEnvironment env;
-        env.insert("PATH", "/bin:/usr/bin:/usr/local/bin:/usr/local/sbin:/usr/sbin");
-        env.insert("DISPLAY", display);
-        env.insert("DESKTOP_SESSION", "testsession");
-        env.insert("GDMSESSION", "testsession");
-        return env;
-    }
-    virtual QByteArray prompt(const QString &message, bool echo = false) {
-        return "root"; // very safe to autologin as root, eh?
-    }
-};
-
 MinimalDMApp::MinimalDMApp(int& argc, char** argv)
         : QCoreApplication(argc, argv)
-        , m_auth(new MinimalDM(this))
+        , m_auth(new QAuth(this))
         , m_displayServer(new QProcess(this)) {
-    m_auth->setVerbosity(true);
+    m_auth->setVerbose(true);
     m_auth->setAutologin(true);
-    m_auth->setExecutable("/usr/bin/lxsession");
+    m_auth->setSession("/usr/bin/lxsession");
+    m_auth->insertEnvironment("PATH", "/bin:/usr/bin:/usr/local/bin:/usr/local/sbin:/usr/sbin");
+
+    connect(m_displayServer, SIGNAL(started()), m_auth, SLOT(start()));
     connect(m_auth, SIGNAL(finished(int)), this, SLOT(handleResult(int)));
+    connect(m_auth, SIGNAL(request(QAuthRequest*)), this, SLOT(handleRequest(QAuthRequest*)));
 
     QTimer::singleShot(0, this, SLOT(startX()));
-    connect(m_displayServer, SIGNAL(started()), m_auth, SLOT(start()));
 }
 
 MinimalDMApp::~MinimalDMApp() {
@@ -66,6 +50,13 @@ void MinimalDMApp::handleResult(int code) {
     exit(code);
 }
 
+void MinimalDMApp::handleRequest(QAuthRequest* request) {
+    Q_FOREACH (QAuthPrompt *p, request->prompts()) {
+        p->setResponse("root"); // very safe to autologin as root, eh?
+    }
+    request->done();
+}
+
 void MinimalDMApp::startX() {
     for (int i = 0; ; i++) {
         if (QFile::exists(QString("/tmp/.X%1-lock").arg(i)))
@@ -73,7 +64,7 @@ void MinimalDMApp::startX() {
         m_displayServer->setProcessChannelMode(QProcess::ForwardedChannels);
         m_displayServer->start("/usr/bin/X", {QString(":%1").arg(i)});
         if (m_displayServer->waitForStarted())
-            m_auth->display = QString(":%1").arg(i);
+            m_auth->insertEnvironment("DISPLAY", QString(":%1").arg(i));
         else
             exit(1);
         break;
