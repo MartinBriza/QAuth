@@ -57,12 +57,27 @@ class QAuth : public QObject {
 public:
     explicit QAuth(const QString &user = QString(), const QString &session = QString(), bool autologin = false, QObject *parent = 0, bool verbose = false);
     explicit QAuth(QObject *parent);
-    virtual ~QAuth();
+    ~QAuth();
 
     bool autologin() const;
     bool verbose() const;
     QString user() const;
     QString session() const;
+
+    /**
+     * If starting a session, you will probably want to provide some basic env variables for the session.
+     * This only inserts the variables - if the current key already had a value, it will be overwritten.
+     * User-specific data such as $HOME is generated automatically.
+     * @param env the environment
+     */
+    void insertEnvironment(const QProcessEnvironment &env);
+
+    /**
+     * Works the same as \ref insertEnvironment but only for one key-value pair
+     * @param key key
+     * @param value value
+     */
+    void insertEnvironment(const QString &key, const QString &value);
 
     /**
      * Set mode to autologin.
@@ -99,14 +114,10 @@ Q_SIGNALS:
     void session(bool success);
     void finished(bool success);
 
-protected:
     /**
-     * If starting a session, you should override this to provide the basic
-     * process environment.
-     * User-specific data such as HOME is generated automatically.
-     * @return initial environment values for the session
+     * @warning don't use Qt::QueuedConnection!
      */
-    virtual QProcessEnvironment provideEnvironment();
+    void environmentRequested();
 
 private:
     class Private;

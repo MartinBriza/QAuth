@@ -62,6 +62,7 @@ public:
     QString sessionPath { };
     QString user { };
     bool autologin { false };
+    QProcessEnvironment environment { };
     qint64 id { 0 };
     static qint64 lastId;
 };
@@ -138,8 +139,8 @@ void QAuth::Private::dataPending() {
                 break;
             }
             case ENVIRONMENT: {
-                QProcessEnvironment env = auth->provideEnvironment();
-                str << Msg::ENVIRONMENT << env;
+                emit auth->environmentRequested();
+                str << Msg::ENVIRONMENT << environment;
                 socket->waitForBytesWritten();
                 break;
             }
@@ -168,6 +169,7 @@ void QAuth::Private::childExited(int exitCode, QProcess::ExitStatus exitStatus) 
 }
 
 void QAuth::Private::childError(QProcess::ProcessError error) {
+    Q_UNUSED(error);
     emit qobject_cast<QAuth*>(parent())->error(child->errorString());
 }
 
@@ -212,6 +214,14 @@ bool QAuth::verbose() const {
     return d->child->processChannelMode() == QProcess::ForwardedChannels;
 }
 
+void QAuth::insertEnvironment(const QProcessEnvironment &env) {
+    d->environment.insert(env);
+}
+
+void QAuth::insertEnvironment(const QString &key, const QString &value) {
+    d->environment.insert(key, value);
+}
+
 void QAuth::setUser(const QString &user) {
     d->user = user;
 }
@@ -242,10 +252,6 @@ void QAuth::start() {
     if (d->autologin)
         args << "--autologin";
     d->child->start(QAUTH_HELPER_PATH, args);
-}
-
-QProcessEnvironment QAuth::provideEnvironment() {
-    return QProcessEnvironment();
 }
 
 #include "QAuth.moc"
