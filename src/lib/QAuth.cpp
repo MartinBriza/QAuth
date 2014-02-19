@@ -138,16 +138,11 @@ void QAuth::Private::dataPending() {
                 emit auth->request(request);
                 break;
             }
-            case ENVIRONMENT: {
-                emit auth->environmentRequested();
-                str << Msg::ENVIRONMENT << environment;
-                socket->waitForBytesWritten();
-                break;
-            }
             case AUTHENTICATED: {
                 QString user;
                 str >> user;
                 emit auth->authentication(user, true);
+                str << AUTHENTICATED << environment;
                 break;
             }
             case SESSION_OPENED: {

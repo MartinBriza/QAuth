@@ -44,7 +44,6 @@ enum Msg {
     HELLO = 1,
     ERROR,
     REQUEST,
-    ENVIRONMENT,
     AUTHENTICATED,
     SESSION_OPENED,
 };

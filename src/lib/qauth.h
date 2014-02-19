@@ -110,14 +110,14 @@ Q_SIGNALS:
     void request(QAuthRequest *request);
 
     void error(QString message);
+    /**
+     * If you want to set some environment variables for the session right before the
+     * session is started, connect to this signal using a blocking connection and insert anything
+     * you need in the slot.
+     */
     void authentication(QString user, bool success);
     void session(bool success);
     void finished(bool success);
-
-    /**
-     * @warning don't use Qt::QueuedConnection!
-     */
-    void environmentRequested();
 
 private:
     class Private;

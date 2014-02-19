@@ -48,8 +48,7 @@ public:
 public slots:
     Request request(const Request &request);
     void error(const QString &message);
-    QProcessEnvironment requestEnvironment();
-    void authenticated(const QString &user);
+    QProcessEnvironment authenticated(const QString &user);
     void sessionOpened();
 
 private slots:
