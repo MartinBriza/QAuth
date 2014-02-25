@@ -92,6 +92,10 @@ public:
      */
     void setVerbose(bool on = true);
 
+    /**
+     * Sets the user which will then authenticate
+     * @param user username
+     */
     void setUser(const QString &user);
 
     /**
@@ -107,17 +111,45 @@ public Q_SLOTS:
     void start();
 
 Q_SIGNALS:
+    /**
+     * Emitted when the underlying authentication stack requests some information
+     * about the user, like the passphrase and such
+     * @param request information about the requested data
+     */
     void request(QAuthRequest *request);
 
-    void error(QString message);
     /**
-     * If you want to set some environment variables for the session right before the
+     * Emitted when authentication phase finishes
+     *
+     * @note If you want to set some environment variables for the session right before the
      * session is started, connect to this signal using a blocking connection and insert anything
      * you need in the slot.
+     * @param user username
+     * @param success true if succeeded
      */
     void authentication(QString user, bool success);
+
+    /**
+     * Emitted when session starting phase finishes
+     *
+     * @param success true if succeeded
+     */
     void session(bool success);
+
+    /**
+     * Emitted when the helper quits, either after authentication or when the session ends.
+     * Or, when something goes wrong
+     *
+     * @param success true if every underlying task went fine
+     */
     void finished(bool success);
+
+    /**
+     * Emitted on error
+     *
+     * @param message message to be displayed to the user
+     */
+    void error(QString message);
 
 private:
     class Private;

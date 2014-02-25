@@ -51,11 +51,23 @@ class QAuthRequest : public QObject {
     Q_PROPERTY(QString info READ info)
     Q_PROPERTY(QList<QAuthPrompt*> prompts READ prompts)
 public:
+    /**
+     * @return information message from the stack
+     */
     QString info() const;
+    /**
+     * @return list of the contained prompts
+     */
     QList<QAuthPrompt*> prompts() const;
 public Q_SLOTS:
+    /**
+     * Call this slot when all prompts has been filled to your satisfaction
+     */
     void done();
 Q_SIGNALS:
+    /**
+     * Emitted when \ref done was called
+     */
     void finished();
 private:
     QAuthRequest(const Request *request, QAuth *parent = 0);
