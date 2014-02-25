@@ -45,7 +45,7 @@ enum Msg {
     ERROR,
     REQUEST,
     AUTHENTICATED,
-    SESSION_OPENED,
+    SESSION_STATUS,
 };
 
 inline QDataStream& operator<<(QDataStream &s, const Msg &m) {

@@ -49,7 +49,7 @@ public slots:
     Request request(const Request &request);
     void error(const QString &message);
     QProcessEnvironment authenticated(const QString &user);
-    void sessionOpened();
+    void sessionOpened(bool success);
 
 private slots:
     void setUp();

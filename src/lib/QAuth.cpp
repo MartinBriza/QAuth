@@ -102,7 +102,6 @@ QAuth::SocketServer* QAuth::SocketServer::instance() {
 }
 
 
-
 QAuth::Private::Private(QAuth *parent)
         : QObject(parent)
         , child(new QProcess(this))
@@ -141,12 +140,18 @@ void QAuth::Private::dataPending() {
             case AUTHENTICATED: {
                 QString user;
                 str >> user;
-                emit auth->authentication(user, true);
+                if (!user.isEmpty())
+                    emit auth->authentication(user, true);
+                else
+                    emit auth->authentication(user, false);
                 str << AUTHENTICATED << environment;
                 break;
             }
-            case SESSION_OPENED: {
-                emit auth->session(true);
+            case SESSION_STATUS: {
+                bool status;
+                str >> status;
+                emit auth->session(status);
+                str << SESSION_STATUS;
                 break;
             }
             default: {
@@ -173,6 +178,7 @@ void QAuth::Private::requestFinished() {
     str << REQUEST << request->request();
     socket->waitForBytesWritten();
 }
+
 
 QAuth::QAuth(const QString &user, const QString &session, bool autologin, QObject *parent, bool verbose)
         : QObject(parent)

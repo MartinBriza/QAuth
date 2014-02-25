@@ -99,6 +99,7 @@ void QAuthApp::doAuth() {
     }
 
     if (!m_backend->authenticate()) {
+        authenticated(QString(""));
         exit(AUTH_ERROR);
         return;
     }
@@ -112,11 +113,12 @@ void QAuthApp::doAuth() {
     }
 
     if (!m_backend->openSession()) {
+        sessionOpened(false);
         exit(SESSION_ERROR);
         return;
     }
 
-    sessionOpened();
+    sessionOpened(true);
 }
 
 void QAuthApp::error(const QString& message) {
@@ -157,10 +159,16 @@ QProcessEnvironment QAuthApp::authenticated(const QString &user) {
     return response;
 }
 
-void QAuthApp::sessionOpened() {
+void QAuthApp::sessionOpened(bool success) {
+    Msg m;
     QDataStream str(m_socket);
-    str << Msg::AUTHENTICATED;
+    str << Msg::SESSION_STATUS << success;
     m_socket->waitForBytesWritten();
+    str >> m;
+    qDebug() << "Received a response to session status";
+    if (m != SESSION_STATUS) {
+        qCritical() << "Received a wrong opcode instead of SESSION_STATUS:" << m;
+    }
 }
 
 Session *QAuthApp::session() {
