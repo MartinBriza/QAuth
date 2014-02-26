@@ -1,12 +1,14 @@
 include_directories(${CMAKE_SOURCE_DIR}/src/lib)
 
 
+
 set(checkpass_SRCS
     CheckPassApp.cpp
 )
 
 add_executable(checkpass ${checkpass_SRCS})
 target_link_libraries(checkpass qauth ${QT_QTCORE_LIBRARY})
+
 
 
 configure_file(minimaldm.service.in minimaldm.service IMMEDIATE @ONLY)
@@ -27,3 +29,12 @@ if (INSTALL_MINIMALDM)
 
     install(TARGETS minimaldm DESTINATION ${BIN_INSTALL_DIR})
 endif()
+
+
+
+set(qmlapp_SRCS
+    QMLApp.cpp
+)
+
+add_executable(qmlapp ${qmlapp_SRCS})
+target_link_libraries(qmlapp qauth ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY})
