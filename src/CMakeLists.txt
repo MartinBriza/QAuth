@@ -36,7 +36,7 @@ set(libQAuth_SRCS
 )
 
 add_library(qauth SHARED ${libQAuth_SRCS})
-target_link_libraries(qauth ${QT_QTCORE_LIBRARY} ${QT_QTNETWORK_LIBRARY})
+target_link_libraries(qauth ${QT_QTCORE_LIBRARY} ${QT_QTNETWORK_LIBRARY} ${QT_QTDECLARATIVE_LIBRARY})
 
 install(TARGETS qauth LIBRARY DESTINATION ${LIB_INSTALL_DIR})
 install(FILES

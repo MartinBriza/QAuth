@@ -27,6 +27,7 @@
 #include <QLocalServer>
 #include <QLocalSocket>
 #include <QtDeclarative/QDeclarativeTypeInfo>
+#include <qdeclarative.h>
 
 #include <unistd.h>
 
@@ -140,10 +141,13 @@ void QAuth::Private::dataPending() {
             case AUTHENTICATED: {
                 QString user;
                 str >> user;
-                if (!user.isEmpty())
+                if (!user.isEmpty()) {
+                    auth->setUser(user);
                     emit auth->authentication(user, true);
-                else
+                }
+                else {
                     emit auth->authentication(user, false);
+                }
                 str << AUTHENTICATED << environment;
                 break;
             }
@@ -192,11 +196,16 @@ QAuth::QAuth(const QString &user, const QString &session, bool autologin, QObjec
 QAuth::QAuth(QObject* parent)
         : QObject(parent)
         , d(new Private(this)) {
-
 }
 
 QAuth::~QAuth() {
     delete d;
+}
+
+void QAuth::registerTypes() {
+    qmlRegisterType<QAuthPrompt>();
+    qmlRegisterType<QAuthRequest>();
+    qmlRegisterType<QAuth>("QAuth", 1, 0, "QAuth");
 }
 
 bool QAuth::autologin() const {

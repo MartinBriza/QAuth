@@ -42,8 +42,12 @@ QString QAuthRequest::info() const {
     return d->info;
 }
 
-QList<QAuthPrompt*> QAuthRequest::prompts() const {
+QList<QAuthPrompt*> QAuthRequest::prompts() {
     return d->prompts;
+}
+
+QDeclarativeListProperty<QAuthPrompt> QAuthRequest::promptsDecl() {
+    return QDeclarativeListProperty<QAuthPrompt>(this, d->prompts);
 }
 
 void QAuthRequest::done() {

@@ -22,6 +22,7 @@
 #define REQUEST_H
 
 #include <QtCore/QObject>
+#include <QDeclarativeListProperty>
 
 class QAuth;
 class QAuthPrompt;
@@ -49,7 +50,7 @@ class Request;
 class QAuthRequest : public QObject {
     Q_OBJECT
     Q_PROPERTY(QString info READ info)
-    Q_PROPERTY(QList<QAuthPrompt*> prompts READ prompts)
+    Q_PROPERTY(QDeclarativeListProperty<QAuthPrompt> prompts READ promptsDecl)
 public:
     /**
      * @return information message from the stack
@@ -58,7 +59,12 @@ public:
     /**
      * @return list of the contained prompts
      */
-    QList<QAuthPrompt*> prompts() const;
+    QList<QAuthPrompt*> prompts();
+    /**
+     * For QML apps
+     * @return list of the contained prompts
+     */
+    QDeclarativeListProperty<QAuthPrompt> promptsDecl();
 public Q_SLOTS:
     /**
      * Call this slot when all prompts has been filled to your satisfaction

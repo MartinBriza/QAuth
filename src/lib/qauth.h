@@ -59,6 +59,8 @@ public:
     explicit QAuth(QObject *parent);
     ~QAuth();
 
+    static void registerTypes();
+
     bool autologin() const;
     bool verbose() const;
     QString user() const;
