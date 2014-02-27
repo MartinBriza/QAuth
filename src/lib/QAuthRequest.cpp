@@ -23,15 +23,31 @@
 
 #include "Messages.h"
 
-class QAuthRequest::Private {
+class QAuthRequest::Private : public QObject {
+    Q_OBJECT
+public slots:
+    void responseChanged();
 public:
+    Private(QObject *parent);
     QString info;
     QList<QAuthPrompt*> prompts;
+    bool finishAutomatically { false };
 };
+
+QAuthRequest::Private::Private(QObject* parent)
+        : QObject(parent) { }
+
+void QAuthRequest::Private::responseChanged() {
+    Q_FOREACH(QAuthPrompt *qap, prompts) {
+        if (qap->response().isEmpty())
+            return;
+    }
+    emit qobject_cast<QAuthRequest*>(parent())->finished();
+}
 
 QAuthRequest::QAuthRequest(const Request *request, QAuth *parent)
         : QObject(parent)
-        , d(new Private) {
+        , d(new Private(this)) {
     d->info = request->info;
     Q_FOREACH (const Prompt& p, request->prompts) {
         d->prompts << new QAuthPrompt(&p, this);
@@ -54,6 +70,28 @@ void QAuthRequest::done() {
     emit finished();
 }
 
+bool QAuthRequest::finishAutomatically() {
+    return d->finishAutomatically;
+}
+
+void QAuthRequest::setFinishAutomatically(bool value) {
+    if (value != d->finishAutomatically) {
+        d->finishAutomatically = value;
+        if (d->finishAutomatically) {
+            Q_FOREACH (QAuthPrompt *qap, d->prompts) {
+                connect(qap, SIGNAL(responseChanged()), d, SLOT(responseChanged()));
+            }
+            d->responseChanged();
+        }
+        else {
+            Q_FOREACH (QAuthPrompt *qap, d->prompts) {
+                disconnect(qap, SIGNAL(responseChanged()), d, SLOT(responseChanged()));
+            }
+        }
+        emit finishAutomaticallyChanged();
+    }
+}
+
 Request QAuthRequest::request() const {
     Request r;
     r.info = d->info;
@@ -69,3 +107,4 @@ Request QAuthRequest::request() const {
 }
 
 #include "moc_request.moc"
+#include "QAuthRequest.moc"

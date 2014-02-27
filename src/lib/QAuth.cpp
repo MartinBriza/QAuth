@@ -133,9 +133,10 @@ void QAuth::Private::dataPending() {
             case REQUEST: {
                 Request r;
                 str >> r;
+                request->deleteLater();
                 request = new QAuthRequest(&r, auth);
                 connect(request, SIGNAL(finished()), this, SLOT(requestFinished()));
-                emit auth->request(request);
+                emit qobject_cast<QAuth*>(parent())->requestChanged();
                 break;
             }
             case AUTHENTICATED: {
@@ -181,6 +182,10 @@ void QAuth::Private::requestFinished() {
     QDataStream str(socket);
     str << REQUEST << request->request();
     socket->waitForBytesWritten();
+    request->deleteLater();
+    Request r;
+    request = new QAuthRequest(&r, qobject_cast<QAuth*>(parent()));
+    emit qobject_cast<QAuth*>(parent())->requestChanged();
 }
 
 
@@ -224,6 +229,10 @@ bool QAuth::verbose() const {
     return d->child->processChannelMode() == QProcess::ForwardedChannels;
 }
 
+QAuthRequest *QAuth::request() {
+    return d->request;
+}
+
 void QAuth::insertEnvironment(const QProcessEnvironment &env) {
     d->environment.insert(env);
 }
@@ -233,22 +242,34 @@ void QAuth::insertEnvironment(const QString &key, const QString &value) {
 }
 
 void QAuth::setUser(const QString &user) {
-    d->user = user;
+    if (user != d->user) {
+        d->user = user;
+        emit userChanged();
+    }
 }
 
 void QAuth::setAutologin(bool on) {
-    d->autologin = on;
+    if (on != d->autologin) {
+        d->autologin = on;
+        emit autologinChanged();
+    }
 }
 
 void QAuth::setSession(const QString& path) {
-    d->sessionPath = path;
+    if (path != d->sessionPath) {
+        d->sessionPath = path;
+        emit sessionChanged();
+    }
 }
 
 void QAuth::setVerbose(bool on) {
-    if (on)
-        d->child->setProcessChannelMode(QProcess::ForwardedChannels);
-    else
-        d->child->setProcessChannelMode(QProcess::SeparateChannels);
+    if (on != verbose()) {
+        if (on)
+            d->child->setProcessChannelMode(QProcess::ForwardedChannels);
+        else
+            d->child->setProcessChannelMode(QProcess::SeparateChannels);
+        emit verboseChanged();
+    }
 }
 
 void QAuth::start() {

@@ -40,9 +40,9 @@ class Prompt;
 class QAuthPrompt : public QObject {
     Q_OBJECT
     Q_ENUMS(Type)
-    Q_PROPERTY(Type type READ type)
-    Q_PROPERTY(QString message READ message)
-    Q_PROPERTY(bool hidden READ hidden)
+    Q_PROPERTY(Type type READ type CONSTANT)
+    Q_PROPERTY(QString message READ message CONSTANT)
+    Q_PROPERTY(bool hidden READ hidden CONSTANT)
     Q_PROPERTY(QByteArray response WRITE setResponse NOTIFY responseChanged)
 public:
     /**

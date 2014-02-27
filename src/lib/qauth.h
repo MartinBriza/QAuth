@@ -50,10 +50,11 @@
 class QAuth : public QObject {
     Q_OBJECT
     // not setting NOTIFY for the properties - they should be set only once before calling start
-    Q_PROPERTY(bool autologin READ autologin WRITE setAutologin)
-    Q_PROPERTY(bool verbose READ verbose WRITE setVerbose)
-    Q_PROPERTY(QString user READ user WRITE setUser)
-    Q_PROPERTY(QString session READ session WRITE setSession)
+    Q_PROPERTY(bool autologin READ autologin WRITE setAutologin NOTIFY autologinChanged)
+    Q_PROPERTY(bool verbose READ verbose WRITE setVerbose NOTIFY verboseChanged)
+    Q_PROPERTY(QString user READ user WRITE setUser NOTIFY userChanged)
+    Q_PROPERTY(QString session READ session WRITE setSession NOTIFY sessionChanged)
+    Q_PROPERTY(QAuthRequest* request READ request NOTIFY requestChanged)
 public:
     explicit QAuth(const QString &user = QString(), const QString &session = QString(), bool autologin = false, QObject *parent = 0, bool verbose = false);
     explicit QAuth(QObject *parent);
@@ -65,6 +66,7 @@ public:
     bool verbose() const;
     QString user() const;
     QString session() const;
+    QAuthRequest *request();
 
     /**
      * If starting a session, you will probably want to provide some basic env variables for the session.
@@ -113,12 +115,11 @@ public Q_SLOTS:
     void start();
 
 Q_SIGNALS:
-    /**
-     * Emitted when the underlying authentication stack requests some information
-     * about the user, like the passphrase and such
-     * @param request information about the requested data
-     */
-    void request(QAuthRequest *request);
+    void autologinChanged();
+    void verboseChanged();
+    void userChanged();
+    void sessionChanged();
+    void requestChanged();
 
     /**
      * Emitted when authentication phase finishes

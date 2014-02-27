@@ -49,8 +49,9 @@ class Request;
  */
 class QAuthRequest : public QObject {
     Q_OBJECT
-    Q_PROPERTY(QString info READ info)
+    Q_PROPERTY(QString info READ info CONSTANT)
     Q_PROPERTY(QDeclarativeListProperty<QAuthPrompt> prompts READ promptsDecl)
+    Q_PROPERTY(bool finishAutomatically READ finishAutomatically WRITE setFinishAutomatically NOTIFY finishAutomaticallyChanged)
 public:
     /**
      * @return information message from the stack
@@ -65,6 +66,9 @@ public:
      * @return list of the contained prompts
      */
     QDeclarativeListProperty<QAuthPrompt> promptsDecl();
+
+    bool finishAutomatically();
+    void setFinishAutomatically(bool value);
 public Q_SLOTS:
     /**
      * Call this slot when all prompts has been filled to your satisfaction
@@ -75,6 +79,8 @@ Q_SIGNALS:
      * Emitted when \ref done was called
      */
     void finished();
+
+    void finishAutomaticallyChanged();
 private:
     QAuthRequest(const Request *request, QAuth *parent = 0);
     Request request() const;
