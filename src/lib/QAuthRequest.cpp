@@ -42,7 +42,7 @@ void QAuthRequest::Private::responseChanged() {
         if (qap->response().isEmpty())
             return;
     }
-    emit qobject_cast<QAuthRequest*>(parent())->finished();
+    qobject_cast<QAuthRequest*>(parent())->done();
 }
 
 QAuthRequest::QAuthRequest(const Request *request, QAuth *parent)

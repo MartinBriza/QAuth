@@ -107,6 +107,8 @@ QAuth::Private::Private(QAuth *parent)
         : QObject(parent)
         , child(new QProcess(this))
         , id(lastId++) {
+    Request r;
+    request = new QAuthRequest(&r, parent);
     SocketServer::instance()->helpers[id] = this;
     connect(child, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(childExited(int,QProcess::ExitStatus)));
     connect(child, SIGNAL(error(QProcess::ProcessError)), this, SLOT(childError(QProcess::ProcessError)));
