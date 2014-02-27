@@ -25,7 +25,7 @@
 QMLApp::QMLApp(int& argc, char** argv)
         : QApplication(argc, argv) {
     QAuth::registerTypes();
-    QDeclarativeView *view = new QDeclarativeView(this);
+    QDeclarativeView *view = new QDeclarativeView();
     view->setSource(QUrl::fromLocalFile("../example/qmlapp.qml"));
     view->show();
 }
