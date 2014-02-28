@@ -19,10 +19,13 @@
  */
 
 #include "CheckPassApp.h"
+
 #include <QAuth>
-#include <QDebug>
+
 #include <iostream>
 #include <string>
+
+#include <termio.h>
 
 CheckPassApp::CheckPassApp(int& argc, char** argv)
         : QCoreApplication(argc, argv)
@@ -48,13 +51,31 @@ void CheckPassApp::handleResult(bool status) {
 }
 
 void CheckPassApp::handleRequest() {
+    struct termio tty;
+    unsigned short flags;
+
     if (!m_auth->request()->info().isEmpty())
         std::cout << "Info: " << m_auth->request()->info().toStdString() << std::endl;
+
     Q_FOREACH (QAuthPrompt *p, m_auth->request()->prompts()) {
         std::string response;
         std::cout << "Prompt: " << p->message().toStdString();
+
+        if (p->hidden()) {
+            ioctl(fileno(stdin), TCGETA, &tty);
+            flags = tty.c_lflag;
+            tty.c_lflag &= ~(ECHO | ECHOE | ECHOK | ECHONL);
+            ioctl(fileno(stdin), TCSETAF, &tty);
+        }
+
         std::cin >> response;
         p->setResponse(response.c_str());
+
+        if (p->hidden()) {
+            tty.c_lflag = flags;
+            ioctl(fileno(stdin), TCSETAW, &tty);
+            fputc('\n', stdout);
+        }
     }
 }
 
