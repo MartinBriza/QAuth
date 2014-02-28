@@ -10,12 +10,15 @@ Rectangle {
         id: auth
         verbose: true
         user: "test1"
-        request.finishAutomatically: true
-        request.onFinished: {
-            console.log("BAM")
+        request {
+            finishAutomatically: true
         }
+
         onError: {
             requestError.text = message
+        }
+        onFinished: {
+            status.text = "Finished"
         }
         Component.onCompleted: {
             auth.start()

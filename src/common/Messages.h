@@ -41,11 +41,13 @@ public:
 };
 
 enum Msg {
+    MSG_UNKNOWN = 0,
     HELLO = 1,
     ERROR,
     REQUEST,
     AUTHENTICATED,
     SESSION_STATUS,
+    MSG_LAST,
 };
 
 inline QDataStream& operator<<(QDataStream &s, const Msg &m) {
@@ -57,6 +59,10 @@ inline QDataStream& operator>>(QDataStream &s, Msg &m) {
     // TODO seriously?
     qint32 i;
     s >> i;
+    if (i >= MSG_LAST || i <= MSG_UNKNOWN) {
+        s.setStatus(QDataStream::ReadCorruptData);
+        return s;
+    }
     m = Msg(i);
     return s;
 }

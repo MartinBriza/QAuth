@@ -169,10 +169,9 @@ void QAuth::Private::dataPending() {
 }
 
 void QAuth::Private::childExited(int exitCode, QProcess::ExitStatus exitStatus) {
-    if (exitStatus == QProcess::NormalExit)
-        Q_EMIT qobject_cast<QAuth*>(parent())->finished(exitCode);
-    else
+    if (exitStatus != QProcess::NormalExit)
         Q_EMIT qobject_cast<QAuth*>(parent())->error(child->errorString());
+    Q_EMIT qobject_cast<QAuth*>(parent())->finished(exitCode);
 }
 
 void QAuth::Private::childError(QProcess::ProcessError error) {
