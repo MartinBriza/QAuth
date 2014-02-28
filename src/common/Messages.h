@@ -125,6 +125,10 @@ inline QDataStream& operator>>(QDataStream &s, Request &m) {
         s >> p;
         prompts << p;
     }
+    if (prompts.length() != length) {
+        s.setStatus(QDataStream::ReadCorruptData);
+        return s;
+    }
     m.info = info;
     m.prompts = prompts;
     return s;

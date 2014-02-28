@@ -23,7 +23,6 @@
 #include "config.h"
 
 #include <QProcess>
-#include <QDebug>
 #include <QLocalServer>
 #include <QLocalSocket>
 #include <QtDeclarative/QDeclarativeTypeInfo>
@@ -137,8 +136,6 @@ void QAuth::Private::dataPending() {
                 Request r;
                 str >> r;
                 request->setRequest(&r);
-                if (request->prompts().length() == 0)
-                    request->done();
                 break;
             }
             case AUTHENTICATED: {
@@ -181,7 +178,8 @@ void QAuth::Private::childError(QProcess::ProcessError error) {
 
 void QAuth::Private::requestFinished() {
     QDataStream str(socket);
-    str << REQUEST << request->request();
+    Request r = request->request();
+    str << REQUEST << r;
     socket->waitForBytesWritten();
     request->setRequest();
 }

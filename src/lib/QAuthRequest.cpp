@@ -32,6 +32,7 @@ public:
     QString info { };
     QList<QAuthPrompt*> prompts { };
     bool finishAutomatically { false };
+    bool finished { false };
 };
 
 QAuthRequest::Private::Private(QObject* parent)
@@ -42,7 +43,7 @@ void QAuthRequest::Private::responseChanged() {
         if (qap->response().isEmpty())
             return;
     }
-    if (prompts.length() > 0)
+    if (finishAutomatically && prompts.length() > 0)
         qobject_cast<QAuthRequest*>(parent())->done();
 }
 
@@ -63,6 +64,7 @@ void QAuthRequest::setRequest(const Request *request) {
                 connect(qap, SIGNAL(responseChanged()), d, SLOT(responseChanged()));
         }
     }
+    d->finished = false;
     Q_EMIT promptsChanged();
 }
 
@@ -79,7 +81,10 @@ QDeclarativeListProperty<QAuthPrompt> QAuthRequest::promptsDecl() {
 }
 
 void QAuthRequest::done() {
-    Q_EMIT finished();
+    if (!d->finished) {
+        d->finished = true;
+        Q_EMIT finished();
+    }
 }
 
 bool QAuthRequest::finishAutomatically() {
@@ -89,17 +94,6 @@ bool QAuthRequest::finishAutomatically() {
 void QAuthRequest::setFinishAutomatically(bool value) {
     if (value != d->finishAutomatically) {
         d->finishAutomatically = value;
-        if (d->finishAutomatically) {
-            Q_FOREACH (QAuthPrompt *qap, d->prompts) {
-                connect(qap, SIGNAL(responseChanged()), d, SLOT(responseChanged()));
-            }
-            d->responseChanged();
-        }
-        else {
-            Q_FOREACH (QAuthPrompt *qap, d->prompts) {
-                disconnect(qap, SIGNAL(responseChanged()), d, SLOT(responseChanged()));
-            }
-        }
         Q_EMIT finishAutomaticallyChanged();
     }
 }
