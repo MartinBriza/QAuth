@@ -34,7 +34,7 @@ private:
     QAuth *m_auth;
 private slots:
     void handleResult(bool status);
-    void handleRequest(QAuthRequest *request);
+    void handleRequest();
     void displayError(QString message);
 };
 

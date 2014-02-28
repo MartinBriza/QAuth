@@ -29,8 +29,9 @@ CheckPassApp::CheckPassApp(int& argc, char** argv)
         , m_auth(new QAuth(this)) {
     m_auth->setVerbose(true);
     connect(m_auth, SIGNAL(finished(bool)), this, SLOT(handleResult(bool)));
-    connect(m_auth, SIGNAL(request(QAuthRequest*)), this, SLOT(handleRequest(QAuthRequest*)));
+    connect(m_auth, SIGNAL(requestChanged()), this, SLOT(handleRequest()));
     connect(m_auth, SIGNAL(error(QString)), this, SLOT(displayError(QString)));
+    m_auth->request()->setFinishAutomatically(true);
     m_auth->start();
 }
 
@@ -39,22 +40,22 @@ CheckPassApp::~CheckPassApp() {
 }
 
 void CheckPassApp::displayError(QString message) {
-    std::cerr << message.toStdString() << std::endl;
+    std::cerr << "Error: " << message.toStdString() << std::endl;
 }
 
 void CheckPassApp::handleResult(bool status) {
     exit(!status);
 }
 
-void CheckPassApp::handleRequest(QAuthRequest* request) {
-    std::cout << request->prompts().length() << " requests: " << request->info().toStdString() << std::endl;
-    Q_FOREACH (QAuthPrompt *p, request->prompts()) {
+void CheckPassApp::handleRequest() {
+    if (!m_auth->request()->info().isEmpty())
+        std::cout << "Info: " << m_auth->request()->info().toStdString() << std::endl;
+    Q_FOREACH (QAuthPrompt *p, m_auth->request()->prompts()) {
         std::string response;
-        std::cout << p->message().toStdString();
+        std::cout << "Prompt: " << p->message().toStdString();
         std::cin >> response;
         p->setResponse(response.c_str());
     }
-    request->done();
 }
 
 int main(int argc, char** argv) {
