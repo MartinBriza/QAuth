@@ -1,6 +1,6 @@
-Doesn't support much right now... I mean, it starts, it even authenticates... no results are put out right now.
+Doesn't support much right now... I mean, it starts, it even authenticates... We'll see about the rest
 
-The code's pretty messy but still good according to my WIP project standards.
+The code's pretty messy but still good compared to my other WIP projects
 
 TODO:
 
@@ -16,7 +16,7 @@ TODO:
 
 Working, it's possible to use the lib for an actual application.
 
-API not stable
+API not stable, I don't even bother to use proper sonames so far
 
 Not sure what to do about the stupid PAM prompts and how to present them
 
@@ -24,6 +24,8 @@ Not sure what to do about the stupid PAM prompts and how to present them
 
 Only proofs of concept, not intended for any real usage
 
-minimaldm - DM that just logs a user into some desktop session... both values are hard-coded into the file and they vary a lot
+minimaldm - DM that just logs a user into some desktop session... both values are hard-coded into the source
 
-checkpass - PAM conversation in the terminal - yes, your password will be visible
+checkpass - PAM conversation in the terminal
+
+qmlapp - PAM conversation in an ugly QML application
