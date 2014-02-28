@@ -120,7 +120,6 @@ void QAuthApp::doAuth() {
         sessionOpened(true);
     }
     else {
-        m_socket->close();
         exit(AUTH_SUCCESS);
         return;
     }
@@ -157,7 +156,7 @@ QProcessEnvironment QAuthApp::authenticated(const QString &user) {
     str >> m >> response;
     if (m != AUTHENTICATED) {
         response = QProcessEnvironment();
-        qCritical() << "Received a wrong opcode instead of ENVIRONMENT:" << m;
+        qCritical() << "Received a wrong opcode instead of AUTHENTICATED:" << m;
     }
     return response;
 }
