@@ -130,13 +130,14 @@ int PamBackend::converse(int n, const struct pam_message **msg, struct pam_respo
         for (int i = 0; i < n; ++i) {
             if (msg[i]->msg_style == PAM_PROMPT_ECHO_OFF || msg[i]->msg_style == PAM_PROMPT_ECHO_ON) {
                 QByteArray data = (*it).response;
-                aresp[i].resp = (char *) malloc(data.length() + 1);
+                size_t length = (data.length() > PAM_MAX_RESP_SIZE - 1 ? PAM_MAX_RESP_SIZE : data.length());
+                aresp[i].resp = (char *) malloc(length + 1);
                 if (aresp[i].resp == nullptr) {
                     failed = true;
                     break;
                 }
                 else {
-                    memcpy(aresp[i].resp, data.data(), data.length());
+                    memcpy(aresp[i].resp, data.data(), length);
                     aresp[i].resp[data.length()] = '\0';
                 }
                 it++;
