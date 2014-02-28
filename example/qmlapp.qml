@@ -10,10 +10,9 @@ Rectangle {
         id: auth
         verbose: true
         user: "test1"
-        onRequestChanged: {
-            requestInfo.text = request.info
-            promptList.model = request.prompts
-            request.finishAutomatically = true
+        request.finishAutomatically: true
+        request.onFinished: {
+            console.log("BAM")
         }
         onError: {
             requestError.text = message
@@ -55,6 +54,7 @@ Rectangle {
     Text {
         anchors.left: requestInfoText.right
         id: requestInfo
+        text: auth.request.info
     }
     Text {
         anchors.top: requestInfoText.bottom
@@ -81,6 +81,7 @@ Rectangle {
     ListView {
         id: promptList
         delegate: promptDelegate
+        model: auth.request.prompts
         width: parent.width - 8
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: statusText.bottom

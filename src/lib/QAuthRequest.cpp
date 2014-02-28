@@ -29,8 +29,8 @@ public slots:
     void responseChanged();
 public:
     Private(QObject *parent);
-    QString info;
-    QList<QAuthPrompt*> prompts;
+    QString info { };
+    QList<QAuthPrompt*> prompts { };
     bool finishAutomatically { false };
 };
 
@@ -42,16 +42,28 @@ void QAuthRequest::Private::responseChanged() {
         if (qap->response().isEmpty())
             return;
     }
-    qobject_cast<QAuthRequest*>(parent())->done();
+    if (prompts.length() > 0)
+        qobject_cast<QAuthRequest*>(parent())->done();
 }
 
-QAuthRequest::QAuthRequest(const Request *request, QAuth *parent)
+QAuthRequest::QAuthRequest(QAuth *parent)
         : QObject(parent)
-        , d(new Private(this)) {
-    d->info = request->info;
-    Q_FOREACH (const Prompt& p, request->prompts) {
-        d->prompts << new QAuthPrompt(&p, this);
+        , d(new Private(this)) { }
+
+void QAuthRequest::setRequest(const Request *request) {
+    qDeleteAll(d->prompts);
+    d->prompts.clear();
+    d->info.clear();
+    if (request != nullptr) {
+        d->info = request->info;
+        Q_FOREACH (const Prompt& p, request->prompts) {
+            QAuthPrompt *qap = new QAuthPrompt(&p, this);
+            d->prompts << qap;
+            if (finishAutomatically())
+                connect(qap, SIGNAL(responseChanged()), d, SLOT(responseChanged()));
+        }
     }
+    Q_EMIT promptsChanged();
 }
 
 QString QAuthRequest::info() const {
@@ -67,7 +79,7 @@ QDeclarativeListProperty<QAuthPrompt> QAuthRequest::promptsDecl() {
 }
 
 void QAuthRequest::done() {
-    emit finished();
+    Q_EMIT finished();
 }
 
 bool QAuthRequest::finishAutomatically() {
@@ -88,7 +100,7 @@ void QAuthRequest::setFinishAutomatically(bool value) {
                 disconnect(qap, SIGNAL(responseChanged()), d, SLOT(responseChanged()));
             }
         }
-        emit finishAutomaticallyChanged();
+        Q_EMIT finishAutomaticallyChanged();
     }
 }
 

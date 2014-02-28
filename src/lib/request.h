@@ -50,7 +50,7 @@ class Request;
 class QAuthRequest : public QObject {
     Q_OBJECT
     Q_PROPERTY(QString info READ info CONSTANT)
-    Q_PROPERTY(QDeclarativeListProperty<QAuthPrompt> prompts READ promptsDecl)
+    Q_PROPERTY(QDeclarativeListProperty<QAuthPrompt> prompts READ promptsDecl NOTIFY promptsChanged)
     Q_PROPERTY(bool finishAutomatically READ finishAutomatically WRITE setFinishAutomatically NOTIFY finishAutomaticallyChanged)
 public:
     /**
@@ -67,6 +67,8 @@ public:
      */
     QDeclarativeListProperty<QAuthPrompt> promptsDecl();
 
+    static QAuthRequest *empty();
+
     bool finishAutomatically();
     void setFinishAutomatically(bool value);
 public Q_SLOTS:
@@ -81,8 +83,10 @@ Q_SIGNALS:
     void finished();
 
     void finishAutomaticallyChanged();
+    void promptsChanged();
 private:
-    QAuthRequest(const Request *request, QAuth *parent = 0);
+    QAuthRequest(QAuth *parent);
+    void setRequest(const Request *request = nullptr);
     Request request() const;
     friend class QAuth;
     class Private;

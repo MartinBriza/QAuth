@@ -47,7 +47,7 @@ QByteArray QAuthPrompt::response() const {
 void QAuthPrompt::setResponse(const QByteArray &r) {
     if (r != d->response) {
         d->response = r;
-        emit responseChanged();
+        Q_EMIT responseChanged();
     }
 }
 

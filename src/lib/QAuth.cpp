@@ -105,13 +105,14 @@ QAuth::SocketServer* QAuth::SocketServer::instance() {
 
 QAuth::Private::Private(QAuth *parent)
         : QObject(parent)
+        , request(new QAuthRequest(parent))
         , child(new QProcess(this))
         , id(lastId++) {
-    Request r;
-    request = new QAuthRequest(&r, parent);
     SocketServer::instance()->helpers[id] = this;
     connect(child, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(childExited(int,QProcess::ExitStatus)));
     connect(child, SIGNAL(error(QProcess::ProcessError)), this, SLOT(childError(QProcess::ProcessError)));
+    connect(request, SIGNAL(finished()), this, SLOT(requestFinished()));
+    connect(request, SIGNAL(promptsChanged()), parent, SIGNAL(requestChanged()));
 }
 
 void QAuth::Private::setSocket(QLocalSocket *socket) {
@@ -135,10 +136,9 @@ void QAuth::Private::dataPending() {
             case REQUEST: {
                 Request r;
                 str >> r;
-                request->deleteLater();
-                request = new QAuthRequest(&r, auth);
-                connect(request, SIGNAL(finished()), this, SLOT(requestFinished()));
-                emit qobject_cast<QAuth*>(parent())->requestChanged();
+                request->setRequest(&r);
+                if (request->prompts().length() == 0)
+                    request->done();
                 break;
             }
             case AUTHENTICATED: {
@@ -146,10 +146,10 @@ void QAuth::Private::dataPending() {
                 str >> user;
                 if (!user.isEmpty()) {
                     auth->setUser(user);
-                    emit auth->authentication(user, true);
+                    Q_EMIT auth->authentication(user, true);
                 }
                 else {
-                    emit auth->authentication(user, false);
+                    Q_EMIT auth->authentication(user, false);
                 }
                 str << AUTHENTICATED << environment;
                 break;
@@ -157,12 +157,12 @@ void QAuth::Private::dataPending() {
             case SESSION_STATUS: {
                 bool status;
                 str >> status;
-                emit auth->session(status);
+                Q_EMIT auth->session(status);
                 str << SESSION_STATUS;
                 break;
             }
             default: {
-                emit auth->error(QString("QAuth: Unexpected value received: %1").arg(m));
+                Q_EMIT auth->error(QString("QAuth: Unexpected value received: %1").arg(m));
             }
         }
     }
@@ -170,24 +170,21 @@ void QAuth::Private::dataPending() {
 
 void QAuth::Private::childExited(int exitCode, QProcess::ExitStatus exitStatus) {
     if (exitStatus == QProcess::NormalExit)
-        emit qobject_cast<QAuth*>(parent())->finished(exitCode);
+        Q_EMIT qobject_cast<QAuth*>(parent())->finished(exitCode);
     else
-        emit qobject_cast<QAuth*>(parent())->error(child->errorString());
+        Q_EMIT qobject_cast<QAuth*>(parent())->error(child->errorString());
 }
 
 void QAuth::Private::childError(QProcess::ProcessError error) {
     Q_UNUSED(error);
-    emit qobject_cast<QAuth*>(parent())->error(child->errorString());
+    Q_EMIT qobject_cast<QAuth*>(parent())->error(child->errorString());
 }
 
 void QAuth::Private::requestFinished() {
     QDataStream str(socket);
     str << REQUEST << request->request();
     socket->waitForBytesWritten();
-    request->deleteLater();
-    Request r;
-    request = new QAuthRequest(&r, qobject_cast<QAuth*>(parent()));
-    emit qobject_cast<QAuth*>(parent())->requestChanged();
+    request->setRequest();
 }
 
 
@@ -246,21 +243,21 @@ void QAuth::insertEnvironment(const QString &key, const QString &value) {
 void QAuth::setUser(const QString &user) {
     if (user != d->user) {
         d->user = user;
-        emit userChanged();
+        Q_EMIT userChanged();
     }
 }
 
 void QAuth::setAutologin(bool on) {
     if (on != d->autologin) {
         d->autologin = on;
-        emit autologinChanged();
+        Q_EMIT autologinChanged();
     }
 }
 
 void QAuth::setSession(const QString& path) {
     if (path != d->sessionPath) {
         d->sessionPath = path;
-        emit sessionChanged();
+        Q_EMIT sessionChanged();
     }
 }
 
@@ -270,7 +267,7 @@ void QAuth::setVerbose(bool on) {
             d->child->setProcessChannelMode(QProcess::ForwardedChannels);
         else
             d->child->setProcessChannelMode(QProcess::SeparateChannels);
-        emit verboseChanged();
+        Q_EMIT verboseChanged();
     }
 }
 
