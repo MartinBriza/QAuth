@@ -35,7 +35,7 @@ public:
 private slots:
     void startX();
     void handleResult(int code);
-    void handleRequest(QAuthRequest *request);
+    void handleRequest();
 
 private:
     QAuth *m_auth;
