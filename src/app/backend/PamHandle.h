@@ -157,7 +157,7 @@ public:
      *
      * \return true on success
      */
-    bool start(const char *service_name);
+    bool start(const QString &service, const QString &user = QString());
 
     /**
      * Set PAM_SILENT upon the contained calls

@@ -137,8 +137,11 @@ int PamHandle::converse(int n, const struct pam_message **msg, struct pam_respon
     return c->converse(n, msg, resp);
 }
 
-bool PamHandle::start(const char *service_name) {
-    m_result = pam_start(service_name, NULL, &m_conv, &m_handle);
+bool PamHandle::start(const QString &service, const QString &user) {
+    if (user.isEmpty())
+        m_result = pam_start(qPrintable(service), NULL, &m_conv, &m_handle);
+    else
+        m_result = pam_start(qPrintable(service), qPrintable(user), &m_conv, &m_handle);
     if (m_result != PAM_SUCCESS) {
         qWarning() << " AUTH: PAM: start" << pam_strerror(m_handle, m_result);
         return false;

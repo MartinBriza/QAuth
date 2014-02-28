@@ -35,15 +35,15 @@ PamBackend::PamBackend(QAuthApp *parent)
         , m_pam(new PamHandle(this)) {
 }
 
-bool PamBackend::start() {
+bool PamBackend::start(const QString &user) {
     bool result;
 
     if (m_app->session()->path().isEmpty())
-        result = m_pam->start("qauth-check");
+        result = m_pam->start("qauth-check", user);
     else if (m_autologin)
-        result = m_pam->start("qauth-autologin");
+        result = m_pam->start("qauth-autologin", user);
     else
-        result = m_pam->start("qauth-login");
+        result = m_pam->start("qauth-login", user);
 
     if (!result)
         m_app->error(m_pam->errorString());

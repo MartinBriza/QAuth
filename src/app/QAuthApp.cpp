@@ -73,6 +73,15 @@ void QAuthApp::setUp() {
         m_session->setPath(args[pos + 1]);
     }
 
+    if ((pos = args.indexOf("--user")) >= 0) {
+        if (pos >= args.length() - 1) {
+            qCritical() << "This application is not supposed to be executed manually";
+            exit(OTHER_ERROR);
+            return;
+        }
+        m_user = args[pos + 1];
+    }
+
     if ((pos = args.indexOf("--autologin")) >= 0) {
         m_backend->setAutologin(true);
     }
@@ -93,7 +102,7 @@ void QAuthApp::doAuth() {
     if (str.status() != QDataStream::Ok)
         qCritical() << "Couldn't write initial message:" << str.status();
 
-    if (!m_backend->start()) {
+    if (!m_backend->start(m_user)) {
         exit(AUTH_ERROR);
         return;
     }
@@ -104,9 +113,8 @@ void QAuthApp::doAuth() {
         return;
     }
 
-    QString user = m_backend->userName();
-    QProcessEnvironment env = authenticated(user);
-    m_session->setUser(user);
+    m_user = m_backend->userName();
+    QProcessEnvironment env = authenticated(m_user);
 
     if (!m_session->path().isEmpty()) {
         m_session->setProcessEnvironment(env);
@@ -175,6 +183,10 @@ void QAuthApp::sessionOpened(bool success) {
 
 Session *QAuthApp::session() {
     return m_session;
+}
+
+const QString& QAuthApp::user() const {
+    return m_user;
 }
 
 QAuthApp::~QAuthApp() {

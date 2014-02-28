@@ -37,7 +37,7 @@ public:
     void setAutologin(bool on = true);
 
 public slots:
-    virtual bool start();
+    virtual bool start(const QString &user = QString());
     virtual bool authenticate() = 0;
     virtual bool openSession();
 

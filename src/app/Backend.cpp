@@ -47,13 +47,13 @@ void Backend::setAutologin(bool on) {
     m_autologin = on;
 }
 
-bool Backend::start() {
+bool Backend::start(const QString &user) {
     return true;
 }
 
 bool Backend::openSession() {
     struct passwd *pw;
-    pw = getpwnam(m_app->session()->user().toLatin1());
+    pw = getpwnam(qPrintable(qobject_cast<QAuthApp*>(parent())->user()));
     if (pw) {
         QProcessEnvironment env = m_app->session()->processEnvironment();
         env.insert("HOME", pw->pw_dir);

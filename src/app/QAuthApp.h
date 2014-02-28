@@ -37,6 +37,7 @@ public:
     virtual ~QAuthApp();
 
     Session *session();
+    const QString &user() const;
 
     enum RetVal {
         AUTH_SUCCESS = 0,
@@ -60,6 +61,7 @@ private:
     Backend *m_backend { nullptr };
     Session *m_session { nullptr };
     QLocalSocket *m_socket { nullptr };
+    QString m_user { };
 };
 
 #endif // QAuth_H

@@ -35,16 +35,13 @@ public:
 
     bool start();
 
-    void setUser(const QString &user);
     void setPath(const QString &path);
-    QString user() const;
     QString path() const;
 
 protected:
     void setupChildProcess();
 
 private:
-    QString m_user { };
     QString m_path { };
 };
 

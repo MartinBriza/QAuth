@@ -48,16 +48,8 @@ QString Session::path() const {
     return m_path;
 }
 
-void Session::setUser(const QString& user) {
-    m_user = user;
-}
-
-QString Session::user() const {
-    return m_user;
-}
-
 void Session::setupChildProcess() {
-    struct passwd *pw = getpwnam(m_user.toLocal8Bit());
+    struct passwd *pw = getpwnam(qobject_cast<QAuthApp*>(parent())->user().toLocal8Bit());
     setgid(pw->pw_gid);
     initgroups(pw->pw_name, pw->pw_gid);
     setuid(pw->pw_uid);
