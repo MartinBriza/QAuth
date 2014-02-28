@@ -3,13 +3,13 @@ import QAuth 1.0
 
 Rectangle {
     width: 480
-    height: 200
+    height: 360
     color: "#EEEEEE"
 
     QAuth {
         id: auth
         verbose: true
-        user: "test1"
+
         request {
             finishAutomatically: true
         }
@@ -20,6 +20,7 @@ Rectangle {
         onFinished: {
             status.text = "Finished"
         }
+
         Component.onCompleted: {
             auth.start()
         }
@@ -27,67 +28,71 @@ Rectangle {
 
     Component {
         id: promptDelegate
-        Item {
+        Rectangle {
+            anchors.horizontalCenter: parent.horizontalCenter
             width: parent.width
-            Text {
-                id: promptMessage
-                text: message
-            }
-            TextInput {
-                id: promptInput
-                anchors.left: promptMessage.right
-                width: parent.width / 2
-                echoMode: hidden ? TextInput.Password : TextInput.Normal
-                onAccepted: {
-                    response = text
+            Rectangle {
+                anchors.centerIn: parent
+                width: parent.width - 6
+                height: parent.height - 6
+                Text {
+                    id: promptMessage
+                    text: message
                 }
-                Rectangle {
-                    z: -1
-                    anchors.fill: parent
-                    color: "#FFFFFF"
+                TextInput {
+                    anchors.right: parent.right
+                    id: promptInput
+                    width: parent.width - promptMessage.width - 8
+                    echoMode: hidden ? TextInput.Password : TextInput.Normal
+                    onAccepted: {
+                        response = text
+                    }
+                    Rectangle {
+                        z: -1
+                        anchors.fill: parent
+                        color: "#FFFFFF"
+                    }
                 }
             }
         }
     }
 
-    Text {
-        id: requestInfoText
-        text: "Current request info: "
+    Row {
+        id: statusRect
+        anchors.horizontalCenter: parent.horizontalCenter
+        Text {
+            id: statusText
+            text: "Status: "
+        }
+        Text {
+            id: status
+            text: "Authenticating"
+        }
     }
     Text {
-        anchors.left: requestInfoText.right
         id: requestInfo
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: statusRect.bottom
         text: auth.request.info
     }
     Text {
-        anchors.top: requestInfoText.bottom
-        id: requestErrorText
-        text: "Current request error: "
-    }
-    Text {
-        anchors.left: requestErrorText.right
-        anchors.top: requestErrorText.top
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: requestInfo.bottom
         id: requestError
     }
-    Text {
-        anchors.top: requestErrorText.bottom
-        id: statusText
-        text: "Status: "
-    }
-    Text {
-        anchors.left: statusText.right
-        anchors.top: statusText.top
-        id: status
-        text: "Authenticating"
-    }
 
-    ListView {
-        id: promptList
-        delegate: promptDelegate
-        model: auth.request.prompts
-        width: parent.width - 8
+    Rectangle {
+        color: "#DDDDDD"
+        anchors.top: requestError.bottom
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: statusText.bottom
+        width: parent.width - 20
+        height: parent.height - y + parent.y
+        ListView {
+            id: promptList
+            delegate: promptDelegate
+            model: auth.request.prompts
+            width: parent.width
+        }
     }
 
 }
