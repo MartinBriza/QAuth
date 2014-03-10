@@ -6,4 +6,4 @@ includedir=@INCLUDE_INSTALL_DIR@
 Name: QAuth
 Description: Library for easy user authentication and session management with a Qt API
 Version: @QAUTH_VERSION_STRING@
-Libs: -lQAuth
+Libs: -lqauth
