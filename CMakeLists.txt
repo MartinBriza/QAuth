@@ -4,7 +4,17 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
-find_package(Qt4 REQUIRED)
+option(BUILD_EXAMPLES "Builds the example applications using the library" OFF)
+option(INSTALL_MINIMALDM "Installs the minimaldm example (you have to have it compiled, see BUILD_EXAMPLES)" OFF)
+option(USE_QT5 "Uses Qt5 to compile the library" OFF)
+
+if(USE_QT5)
+    find_package(Qt5Core REQUIRED)
+    set(COMPONENTS_VERSION 2.0)
+else()
+    find_package(Qt4 REQUIRED)
+    set(COMPONENTS_VERSION 1.1)
+endif()
 find_package(PAM)
 
 include (InstallSettings)

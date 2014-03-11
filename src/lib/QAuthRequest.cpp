@@ -76,8 +76,8 @@ QList<QAuthPrompt*> QAuthRequest::prompts() {
     return d->prompts;
 }
 
-QDeclarativeListProperty<QAuthPrompt> QAuthRequest::promptsDecl() {
-    return QDeclarativeListProperty<QAuthPrompt>(this, d->prompts);
+QQmlListProperty<QAuthPrompt> QAuthRequest::promptsDecl() {
+    return QQmlListProperty<QAuthPrompt>(this, d->prompts);
 }
 
 void QAuthRequest::done() {

@@ -7,7 +7,12 @@ set(checkpass_SRCS
 )
 
 add_executable(checkpass ${checkpass_SRCS})
-target_link_libraries(checkpass qauth ${QT_QTCORE_LIBRARY})
+if (USE_QT5)
+    qt5_use_modules(checkpass Core Qml)
+else()
+    target_link_libraries(checkpass ${QT_QTCORE_LIBRARY})
+endif()
+target_link_libraries(checkpass qauth)
 
 
 
@@ -18,7 +23,12 @@ set(minimaldm_SRCS
 )
 
 add_executable(minimaldm ${minimaldm_SRCS})
-target_link_libraries(minimaldm qauth ${QT_QTCORE_LIBRARY})
+if (USE_QT5)
+    qt5_use_modules(minimaldm Core Qml)
+else()
+    target_link_libraries(minimaldm ${QT_QTCORE_LIBRARY})
+endif()
+target_link_libraries(minimaldm qauth)
 
 if (INSTALL_MINIMALDM)
     execute_process(COMMAND ${PKG_CONFIG_EXECUTABLE} --variable=systemdsystemunitdir systemd OUTPUT_VARIABLE SYSTEMD_UNIT_DIR)
@@ -36,5 +46,12 @@ set(qmlapp_SRCS
     QMLApp.cpp
 )
 
+configure_file(qmlapp.qml qmlapp.qml)
+
 add_executable(qmlapp ${qmlapp_SRCS})
-target_link_libraries(qmlapp qauth ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY})
+if (USE_QT5)
+    qt5_use_modules(qmlapp Core Qml Gui Quick)
+else()
+    target_link_libraries(qmlapp ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY})
+endif()
+target_link_libraries(qmlapp qauth)

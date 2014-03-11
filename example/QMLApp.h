@@ -21,10 +21,16 @@
 #ifndef MINIMALDMAPP_H
 #define MINIMALDMAPP_H
 
-#include <QApplication>
 #include <QAuth>
 
-class QMLApp : public QApplication
+#if QT_VERSION >= 0x050000
+# include <QtGui/QGuiApplication>
+#else
+# include <QApplication>
+# define QGuiApplication QApplication
+#endif
+
+class QMLApp : public QGuiApplication
 {
     Q_OBJECT
 public:

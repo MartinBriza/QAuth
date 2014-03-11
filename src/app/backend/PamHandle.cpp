@@ -24,7 +24,7 @@
 
 bool PamHandle::putEnv(const QProcessEnvironment& env) {
     foreach (const QString& s, env.toStringList()) {
-        m_result = pam_putenv(m_handle, s.toAscii());
+        m_result = pam_putenv(m_handle, qPrintable(s));
         if (m_result != PAM_SUCCESS) {
             qWarning() << " AUTH: PAM: putEnv:" << pam_strerror(m_handle, m_result);
             return false;

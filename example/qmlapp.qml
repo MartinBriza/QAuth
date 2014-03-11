@@ -1,4 +1,4 @@
-import QtQuick 1.1
+import QtQuick ${COMPONENTS_VERSION}
 import QAuth 1.0
 
 Rectangle {

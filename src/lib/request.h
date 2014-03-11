@@ -22,7 +22,14 @@
 #define REQUEST_H
 
 #include <QtCore/QObject>
-#include <QDeclarativeListProperty>
+
+#if QT_VERSION >= 0x050000
+# include <QtQml/QQmlListProperty>
+#else
+# include <QDeclarativeListProperty>
+// mixing Qt4 and Qt5 is bad, m'kay
+# define QQmlListProperty QDeclarativeListProperty
+#endif
 
 class QAuth;
 class QAuthPrompt;
@@ -50,7 +57,7 @@ class Request;
 class QAuthRequest : public QObject {
     Q_OBJECT
     Q_PROPERTY(QString info READ info CONSTANT)
-    Q_PROPERTY(QDeclarativeListProperty<QAuthPrompt> prompts READ promptsDecl NOTIFY promptsChanged)
+    Q_PROPERTY(QQmlListProperty<QAuthPrompt> prompts READ promptsDecl NOTIFY promptsChanged)
     Q_PROPERTY(bool finishAutomatically READ finishAutomatically WRITE setFinishAutomatically NOTIFY finishAutomaticallyChanged)
 public:
     /**
@@ -65,7 +72,7 @@ public:
      * For QML apps
      * @return list of the contained prompts
      */
-    QDeclarativeListProperty<QAuthPrompt> promptsDecl();
+    QQmlListProperty<QAuthPrompt> promptsDecl();
 
     static QAuthRequest *empty();
 

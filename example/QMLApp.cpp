@@ -20,13 +20,24 @@
 
 #include "QMLApp.h"
 
-#include <QtDeclarative/QDeclarativeView>
+#include <QFile>
+
+#if QT_VERSION >= 0x050000
+# include <QtQuick/QQuickView>
+#else
+# include <QtDeclarative/QDeclarativeView>
+# define QQuickView QDeclarativeview
+#endif
 
 QMLApp::QMLApp(int& argc, char** argv)
-        : QApplication(argc, argv) {
+        : QGuiApplication(argc, argv) {
     QAuth::registerTypes();
-    QDeclarativeView *view = new QDeclarativeView();
-    view->setSource(QUrl::fromLocalFile("../example/qmlapp.qml"));
+    QQuickView *view = new QQuickView();
+    // make my life easier for testing
+    if (QFile::exists("qmlapp.qml"))
+        view->setSource(QUrl::fromLocalFile("qmlapp.qml"));
+    else
+        view->setSource(QUrl::fromLocalFile("example/qmlapp.qml"));
     view->show();
 }
 

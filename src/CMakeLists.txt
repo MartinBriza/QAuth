@@ -19,7 +19,11 @@ if(PAM_FOUND)
 endif()
 
 add_executable(qauthhelper ${Helper_SRCS})
-target_link_libraries(qauthhelper ${QT_QTCORE_LIBRARY} ${QT_QTNETWORK_LIBRARY})
+if (USE_QT5)
+    qt5_use_modules(qauthhelper Core Network)
+else()
+    target_link_libraries(qauthhelper ${QT_QTCORE_LIBRARY} ${QT_QTNETWORK_LIBRARY})
+endif()
 if(PAM_FOUND)
     target_link_libraries(qauthhelper ${PAM_LIBRARIES})
 else()
@@ -36,7 +40,11 @@ set(libQAuth_SRCS
 )
 
 add_library(qauth SHARED ${libQAuth_SRCS})
-target_link_libraries(qauth ${QT_QTCORE_LIBRARY} ${QT_QTNETWORK_LIBRARY} ${QT_QTDECLARATIVE_LIBRARY})
+if (USE_QT5)
+    qt5_use_modules(qauth Core Network Qml)
+else()
+    target_link_libraries(qauth ${QT_QTCORE_LIBRARY} ${QT_QTNETWORK_LIBRARY} ${QT_QTDECLARATIVE_LIBRARY})
+endif()
 
 install(TARGETS qauth LIBRARY DESTINATION ${LIB_INSTALL_DIR})
 install(FILES

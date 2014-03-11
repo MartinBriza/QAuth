@@ -25,8 +25,12 @@
 #include <QProcess>
 #include <QLocalServer>
 #include <QLocalSocket>
-#include <QtDeclarative/QDeclarativeTypeInfo>
-#include <qdeclarative.h>
+
+#if QT_VERSION >= 0x050000
+# include <QtQml/QtQml>
+#else
+# include <QtDeclarative/QDeclarativeTypeInfo>
+#endif
 
 #include <unistd.h>
 
