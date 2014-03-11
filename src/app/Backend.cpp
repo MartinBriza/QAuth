@@ -48,7 +48,8 @@ void Backend::setAutologin(bool on) {
 }
 
 bool Backend::start(const QString &user) {
-    return true;
+    Q_UNUSED(user);
+    return false;
 }
 
 bool Backend::openSession() {

@@ -29,7 +29,7 @@
 #if QT_VERSION >= 0x050000
 # include <QtQml/QtQml>
 #else
-# include <QtDeclarative/QDeclarativeTypeInfo>
+# include <QtDeclarative/QtDeclarative>
 #endif
 
 #include <unistd.h>

@@ -26,7 +26,7 @@
 # include <QtQuick/QQuickView>
 #else
 # include <QtDeclarative/QDeclarativeView>
-# define QQuickView QDeclarativeview
+# define QQuickView QDeclarativeView
 #endif
 
 QMLApp::QMLApp(int& argc, char** argv)
