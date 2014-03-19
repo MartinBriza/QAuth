@@ -54,8 +54,11 @@ void CheckPassApp::handleRequest() {
     struct termio tty;
     unsigned short flags;
 
-    if (!m_auth->request()->info().isEmpty())
+    if (!m_auth->request()->info().isEmpty()) {
         std::cout << "Info: " << m_auth->request()->info().toStdString() << std::endl;
+        if (m_auth->request()->prompts().isEmpty())
+            m_auth->request()->done();
+    }
 
     Q_FOREACH (QAuthPrompt *p, m_auth->request()->prompts()) {
         std::string response;
