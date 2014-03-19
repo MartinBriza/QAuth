@@ -53,4 +53,4 @@ install(FILES
     lib/qauth.h
     lib/request.h
     DESTINATION
-    ${INCLUDE_INSTALL_DIR} COMPONENT Devel)
+    ${INCLUDE_INSTALL_DIR}/QAuth COMPONENT Devel)
