@@ -32,7 +32,7 @@ public:
     QString info { };
     QList<QAuthPrompt*> prompts { };
     bool finishAutomatically { false };
-    bool finished { false };
+    bool finished { true };
 };
 
 QAuthRequest::Private::Private(QObject* parent)
@@ -63,8 +63,8 @@ void QAuthRequest::setRequest(const Request *request) {
             if (finishAutomatically())
                 connect(qap, SIGNAL(responseChanged()), d, SLOT(responseChanged()));
         }
+        d->finished = false;
     }
-    d->finished = false;
     Q_EMIT promptsChanged();
 }
 

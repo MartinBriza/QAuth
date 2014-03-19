@@ -14,6 +14,10 @@ Rectangle {
             finishAutomatically: true
         }
 
+        onRequestChanged: {
+            if (request.prompts.length == 0)
+                request.done()
+        }
         onError: {
             requestError.text = message
         }
