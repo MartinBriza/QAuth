@@ -22,10 +22,10 @@
 
 #include "Backend.h"
 #include "Session.h"
+#include "SafeDataStream.h"
 
 #include <QTimer>
 #include <QFile>
-#include <QDataStream>
 #include <QLocalSocket>
 #include <QDebug>
 
@@ -97,8 +97,9 @@ void QAuthApp::setUp() {
 }
 
 void QAuthApp::doAuth() {
-    QDataStream str(m_socket);
+    SafeDataStream str(m_socket);
     str << Msg::HELLO << m_id;
+    str.send();
     if (str.status() != QDataStream::Ok)
         qCritical() << "Couldn't write initial message:" << str.status();
 
@@ -127,25 +128,25 @@ void QAuthApp::doAuth() {
 
         sessionOpened(true);
     }
-    else {
-        exit(AUTH_SUCCESS);
-        return;
-    }
+
+    exit(AUTH_SUCCESS);
+    return;
 }
 
 void QAuthApp::error(const QString& message) {
-    QDataStream str(m_socket);
+    SafeDataStream str(m_socket);
     str << Msg::ERROR << message;
+    str.send();
     m_socket->waitForBytesWritten();
 }
 
 Request QAuthApp::request(const Request& request) {
     Msg m;
     Request response;
-    QDataStream str(m_socket);
+    SafeDataStream str(m_socket);
     str << Msg::REQUEST << request;
-    m_socket->waitForBytesWritten();
-    m_socket->waitForReadyRead(-1);
+    str.send();
+    str.receive();
     str >> m >> response;
     if (m != REQUEST) {
         response = Request();
@@ -157,10 +158,10 @@ Request QAuthApp::request(const Request& request) {
 QProcessEnvironment QAuthApp::authenticated(const QString &user) {
     Msg m;
     QProcessEnvironment response;
-    QDataStream str(m_socket);
+    SafeDataStream str(m_socket);
     str << Msg::AUTHENTICATED << user;
-    m_socket->waitForBytesWritten();
-    m_socket->waitForReadyRead(-1);
+    str.send();
+    str.receive();
     str >> m >> response;
     if (m != AUTHENTICATED) {
         response = QProcessEnvironment();
@@ -171,10 +172,10 @@ QProcessEnvironment QAuthApp::authenticated(const QString &user) {
 
 void QAuthApp::sessionOpened(bool success) {
     Msg m;
-    QDataStream str(m_socket);
+    SafeDataStream str(m_socket);
     str << Msg::SESSION_STATUS << success;
-    m_socket->waitForBytesWritten();
-    m_socket->waitForReadyRead(-1);
+    str.send();
+    str.receive();
     str >> m;
     if (m != SESSION_STATUS) {
         qCritical() << "Received a wrong opcode instead of SESSION_STATUS:" << m;

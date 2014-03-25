@@ -24,12 +24,23 @@
 #include "Messages.h"
 
 class QAuthPrompt::Private : public Prompt {
+public:
+    Private(const Prompt *p) {
+        // initializers are too mainstream i guess
+        type = p->type;
+        hidden = p->hidden;
+        message = p->message;
+        response = p->response;
+    }
 };
 
 QAuthPrompt::QAuthPrompt(const Prompt *prompt, QAuthRequest *parent)
         : QObject(parent)
-        , d(new Private) {
-    *d = *static_cast<const QAuthPrompt::Private*>(prompt);
+        , d(new Private(prompt)) {
+}
+
+QAuthPrompt::~QAuthPrompt() {
+    delete d;
 }
 
 QAuthPrompt::Type QAuthPrompt::type() const {

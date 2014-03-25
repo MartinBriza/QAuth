@@ -9,6 +9,7 @@ set(Helper_SRCS
     app/Backend.cpp
     app/QAuthApp.cpp
     app/Session.cpp
+    common/SafeDataStream.cpp
 )
 
 if(PAM_FOUND)
@@ -37,6 +38,7 @@ set(libQAuth_SRCS
     lib/QAuth.cpp
     lib/QAuthPrompt.cpp
     lib/QAuthRequest.cpp
+    common/SafeDataStream.cpp
 )
 
 add_library(qauth SHARED ${libQAuth_SRCS})

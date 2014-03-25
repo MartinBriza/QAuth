@@ -45,6 +45,7 @@ class QAuthPrompt : public QObject {
     Q_PROPERTY(bool hidden READ hidden CONSTANT)
     Q_PROPERTY(QByteArray response WRITE setResponse NOTIFY responseChanged)
 public:
+    virtual ~QAuthPrompt();
     /**
      * \note In hex not for binary operations but to leave space for adding other codes
      */

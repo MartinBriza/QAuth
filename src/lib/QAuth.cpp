@@ -20,6 +20,7 @@
 
 #include "qauth.h"
 #include "Messages.h"
+#include "SafeDataStream.h"
 #include "config.h"
 
 #include <QProcess>
@@ -85,8 +86,8 @@ void QAuth::SocketServer::incomingConnection()  {
         Msg m;
         qint64 id;
         QLocalSocket *socket = nextPendingConnection();
-        socket->waitForReadyRead();
-        QDataStream str(socket);
+        SafeDataStream str(socket);
+        str.receive();
         str >> m >> id;
         if (m == Msg::HELLO && id && SocketServer::instance()->helpers.contains(id)) {
             helpers[id]->setSocket(socket);
@@ -125,46 +126,49 @@ void QAuth::Private::setSocket(QLocalSocket *socket) {
 
 void QAuth::Private::dataPending() {
     QAuth *auth = qobject_cast<QAuth*>(parent());
-    Msg m;
-    QDataStream str(socket);
-    while (socket->bytesAvailable()) {
-        str >> m;
-        switch (m) {
-            case ERROR: {
-                QString message;
-                str >> message;
-                auth->error(message);
-                break;
+    Msg m = MSG_UNKNOWN;
+    SafeDataStream str(socket);
+    str.receive();
+    str >> m;
+    switch (m) {
+        case ERROR: {
+            QString message;
+            str >> message;
+            auth->error(message);
+            break;
+        }
+        case REQUEST: {
+            Request r;
+            str >> r;
+            request->setRequest(&r);
+            break;
+        }
+        case AUTHENTICATED: {
+            QString user;
+            str >> user;
+            if (!user.isEmpty()) {
+                auth->setUser(user);
+                Q_EMIT auth->authentication(user, true);
             }
-            case REQUEST: {
-                Request r;
-                str >> r;
-                request->setRequest(&r);
-                break;
+            else {
+                Q_EMIT auth->authentication(user, false);
             }
-            case AUTHENTICATED: {
-                QString user;
-                str >> user;
-                if (!user.isEmpty()) {
-                    auth->setUser(user);
-                    Q_EMIT auth->authentication(user, true);
-                }
-                else {
-                    Q_EMIT auth->authentication(user, false);
-                }
-                str << AUTHENTICATED << environment;
-                break;
-            }
-            case SESSION_STATUS: {
-                bool status;
-                str >> status;
-                Q_EMIT auth->session(status);
-                str << SESSION_STATUS;
-                break;
-            }
-            default: {
-                Q_EMIT auth->error(QString("QAuth: Unexpected value received: %1").arg(m));
-            }
+            str.reset();
+            str << AUTHENTICATED << environment;
+            str.send();
+            break;
+        }
+        case SESSION_STATUS: {
+            bool status;
+            str >> status;
+            Q_EMIT auth->session(status);
+            str.reset();
+            str << SESSION_STATUS;
+            str.send();
+            break;
+        }
+        default: {
+            Q_EMIT auth->error(QString("QAuth: Unexpected value received: %1").arg(m));
         }
     }
 }
@@ -181,10 +185,10 @@ void QAuth::Private::childError(QProcess::ProcessError error) {
 }
 
 void QAuth::Private::requestFinished() {
-    QDataStream str(socket);
+    SafeDataStream str(socket);
     Request r = request->request();
     str << REQUEST << r;
-    socket->waitForBytesWritten();
+    str.send();
     request->setRequest();
 }
 
