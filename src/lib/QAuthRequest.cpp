@@ -52,7 +52,7 @@ QAuthRequest::QAuthRequest(QAuth *parent)
         , d(new Private(this)) { }
 
 void QAuthRequest::setRequest(const Request *request) {
-    qDeleteAll(d->prompts);
+    QList<QAuthPrompt*> promptsCopy(d->prompts);
     d->prompts.clear();
     d->info.clear();
     if (request != nullptr) {
@@ -66,6 +66,9 @@ void QAuthRequest::setRequest(const Request *request) {
         d->finished = false;
     }
     Q_EMIT promptsChanged();
+    if (request == nullptr) {
+        qDeleteAll(promptsCopy);
+    }
 }
 
 QString QAuthRequest::info() const {
