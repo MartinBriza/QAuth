@@ -22,13 +22,27 @@
 #include "app/QAuthApp.h"
 #include "app/Session.h"
 
-#include "Messages.h"
 #include "lib/qauth.h"
 
 #include <QtCore/QString>
 #include <QDebug>
 
 #include <stdlib.h>
+
+static Request loginRequest {
+    {},
+    {   { QAuthPrompt::LOGIN_USER, "login:", false },
+        { QAuthPrompt::LOGIN_PASSWORD, "Password: ", true }
+    }
+};
+
+static Request changePassRequest {
+    { "Changing password" },
+    {   { QAuthPrompt::CHANGE_CURRENT, "(current) UNIX password: ", true },
+        { QAuthPrompt::CHANGE_NEW, "New password: ", true },
+        { QAuthPrompt::CHANGE_REPEAT, "Retype new password: ", true }
+    }
+};
 
 PamBackend::PamBackend(QAuthApp *parent)
         : Backend(parent)
@@ -84,6 +98,113 @@ QString PamBackend::userName() {
     return (const char*) m_pam->getItem(PAM_USER);
 }
 
+Prompt PamBackend::detectMessage(const struct pam_message* msg) {
+    Prompt p;
+    p.hidden = msg->msg_style == PAM_PROMPT_ECHO_OFF;
+    p.message = msg->msg;
+
+    if (msg->msg_style == PAM_PROMPT_ECHO_OFF) {
+        if (p.message.indexOf(QRegExp("\\bpassword\\b", Qt::CaseInsensitive)) >= 0) {
+            if (p.message.indexOf(QRegExp("\\b(re-?(enter|type)|again|confirm|repeat)\\b", Qt::CaseInsensitive)) >= 0) {
+                p.type = QAuthPrompt::CHANGE_REPEAT;
+            }
+            else if (p.message.indexOf(QRegExp("\\bnew\\b", Qt::CaseInsensitive)) >= 0) {
+                p.type = QAuthPrompt::CHANGE_NEW;
+            }
+            else if (p.message.indexOf(QRegExp("\\b(old|current)\\b", Qt::CaseInsensitive)) >= 0) {
+                p.type = QAuthPrompt::CHANGE_CURRENT;
+            }
+            else {
+                p.type = QAuthPrompt::LOGIN_PASSWORD;
+            }
+        }
+    }
+    else {
+        p.type = QAuthPrompt::LOGIN_USER;
+    }
+
+    return p;
+}
+
+Request PamBackend::guessRequest(const struct pam_message* msg, bool *failed) {
+    Request r;
+    if (msg->msg_style == PAM_TEXT_INFO) {
+        if (QString(msg->msg).indexOf(QRegExp("^Changing password for [^ ]+$"))) {
+            r = changePassRequest;
+            r.info = QString(msg->msg);
+        }
+    }
+    else if (msg->msg_style == PAM_PROMPT_ECHO_OFF || msg->msg_style == PAM_PROMPT_ECHO_ON) {
+        Prompt base = detectMessage(msg);
+        switch (base.type) {
+            case QAuthPrompt::LOGIN_USER:
+                r = loginRequest;
+                break;
+            case QAuthPrompt::LOGIN_PASSWORD:
+                r = Request({}, {base});
+                break;
+            case QAuthPrompt::CHANGE_REPEAT:
+            case QAuthPrompt::CHANGE_NEW:
+            case QAuthPrompt::CHANGE_CURRENT:
+                r = changePassRequest;
+                break;
+            default:
+                *failed = true;
+        }
+    }
+    else {
+        *failed = true;
+    }
+    return r;
+}
+
+Request PamBackend::formatRequest(int n, const struct pam_message** msg, bool *failed) {
+    Request r;
+    if (n == 1 && msg[0]->msg_style != PAM_ERROR_MSG)
+        guessRequest(msg[0], failed);
+    else {
+        for (int i = 0; i < n; ++i) {
+            if (msg[i]->msg_style == PAM_PROMPT_ECHO_OFF || msg[i]->msg_style == PAM_PROMPT_ECHO_ON) {
+                r.prompts << detectMessage(msg[i]);
+            }
+            else if (msg[i]->msg_style == PAM_TEXT_INFO) {
+                qDebug() << " AUTH: PAM: Info" << msg[i]->msg;
+                r.info = msg[i]->msg;
+            }
+            else if (msg[i]->msg_style == PAM_ERROR_MSG) {
+                qDebug() << " AUTH: PAM: Error" << msg[i]->msg;
+                m_app->error(QString(msg[i]->msg));
+                return Request();
+            }
+            else {
+                *failed = true;
+                return Request();
+            }
+        }
+    }
+    return r;
+}
+
+void PamBackend::handleResponse(int n, const struct pam_message **msg, pam_response* aresp, const Request& response, bool *failed) {
+    auto it = response.prompts.begin();
+    for (int i = 0; i < n; ++i) {
+        if (msg[i]->msg_style == PAM_PROMPT_ECHO_OFF || msg[i]->msg_style == PAM_PROMPT_ECHO_ON) {
+            QByteArray data = (*it).response;
+            size_t length = (data.length() > PAM_MAX_RESP_SIZE - 1 ? PAM_MAX_RESP_SIZE : data.length());
+            aresp[i].resp = (char *) malloc(length + 1);
+            if (aresp[i].resp == nullptr) {
+                *failed = true;
+                break;
+            }
+            else {
+                memcpy(aresp[i].resp, data.data(), length);
+                aresp[i].resp[data.length()] = '\0';
+            }
+            it++;
+        }
+    }
+}
+
 int PamBackend::converse(int n, const struct pam_message **msg, struct pam_response **resp) {
     qDebug() << " AUTH: PAM: Conversation..." << n;
     struct pam_response *aresp;
@@ -98,54 +219,13 @@ int PamBackend::converse(int n, const struct pam_message **msg, struct pam_respo
 
     bool failed = false;
 
-    Request request;
-
-    for (int i = 0; i < n; ++i) {
-        if (msg[i]->msg_style == PAM_PROMPT_ECHO_OFF || msg[i]->msg_style == PAM_PROMPT_ECHO_ON) {
-            Prompt p;
-            p.hidden = msg[i]->msg_style == PAM_PROMPT_ECHO_OFF;
-            p.message = msg[i]->msg;
-            // TODO MORE TYPES WILL GO HERE
-            p.type = msg[i]->msg_style == PAM_PROMPT_ECHO_OFF ? QAuthPrompt::LOGIN_PASSWORD : QAuthPrompt::LOGIN_USER;
-            request.prompts << p;
-        }
-        else if (msg[i]->msg_style == PAM_TEXT_INFO) {
-            qDebug() << " AUTH: PAM: Info" << msg[i]->msg;
-            request.info = msg[i]->msg;
-        }
-        else if (msg[i]->msg_style == PAM_ERROR_MSG) {
-            qDebug() << " AUTH: PAM: Error" << msg[i]->msg;
-            m_app->error(QString(msg[i]->msg));
-            return PAM_SUCCESS;
-        }
-        else {
+    Request request = formatRequest(n, msg, &failed);
+    if (!failed) {
+        Request response = m_app->request(request);
+        if (response.prompts.length() == request.prompts.length())
+            handleResponse(n, msg, aresp, response, &failed);
+        else
             failed = true;
-        }
-    }
-
-    Request response = m_app->request(request);
-
-    if (!failed && response.prompts.length() == request.prompts.length()) {
-        auto it = response.prompts.begin();
-        for (int i = 0; i < n; ++i) {
-            if (msg[i]->msg_style == PAM_PROMPT_ECHO_OFF || msg[i]->msg_style == PAM_PROMPT_ECHO_ON) {
-                QByteArray data = (*it).response;
-                size_t length = (data.length() > PAM_MAX_RESP_SIZE - 1 ? PAM_MAX_RESP_SIZE : data.length());
-                aresp[i].resp = (char *) malloc(length + 1);
-                if (aresp[i].resp == nullptr) {
-                    failed = true;
-                    break;
-                }
-                else {
-                    memcpy(aresp[i].resp, data.data(), length);
-                    aresp[i].resp[data.length()] = '\0';
-                }
-                it++;
-            }
-        }
-    }
-    else {
-        failed = true;
     }
 
     if (failed) {

@@ -30,7 +30,7 @@
 CheckPassApp::CheckPassApp(int& argc, char** argv)
         : QCoreApplication(argc, argv)
         , m_auth(new QAuth(this)) {
-//     m_auth->setVerbose(true);
+    m_auth->setVerbose(true);
     connect(m_auth, SIGNAL(finished(bool)), this, SLOT(handleResult(bool)));
     connect(m_auth, SIGNAL(requestChanged()), this, SLOT(handleRequest()));
     connect(m_auth, SIGNAL(error(QString)), this, SLOT(displayError(QString)));

@@ -28,9 +28,22 @@
 
 class Prompt {
 public:
-    Prompt() {}
+    Prompt() { }
     Prompt(QAuthPrompt::Type type, QString message, bool hidden)
             : type(type), message(message), hidden(hidden) { }
+    Prompt(const Prompt &o)
+            : type(o.type), response(o.response), message(o.message), hidden(o.hidden) { }
+    Prompt& operator=(const Prompt &o) {
+        type = o.type;
+        response = o.response;
+        message = o.message;
+        hidden = o.hidden;
+        return *this;
+    }
+    bool valid() const {
+        return !(type == QAuthPrompt::NONE && response.isEmpty() && message.isEmpty());
+    }
+
     QAuthPrompt::Type type { QAuthPrompt::NONE };
     QByteArray response { };
     QString message { };
@@ -39,8 +52,22 @@ public:
 
 class Request {
 public:
-    QString info;
-    QList<Prompt> prompts;
+    Request() { }
+    Request(QString info, QList<Prompt> prompts)
+            : info(info), prompts(prompts) { }
+    Request(const Request &o)
+            : info(o.info), prompts(o.prompts) { }
+    Request& operator=(const Request &o) {
+        info = o.info;
+        prompts = QList<Prompt>(o.prompts);
+        return *this;
+    }
+    bool valid() const {
+        return !(info.isEmpty() && prompts.isEmpty());
+    }
+
+    QString info { };
+    QList<Prompt> prompts { };
 };
 
 enum Msg {

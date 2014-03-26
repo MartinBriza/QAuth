@@ -21,6 +21,7 @@
 #if !defined(PAMBACKEND_H) && defined(PAM_FOUND)
 #define PAMBACKEND_H
 
+#include "Messages.h"
 #include "../Backend.h"
 
 #include <QtCore/QObject>
@@ -33,6 +34,10 @@ class PamBackend : public Backend
     Q_OBJECT
 public:
     explicit PamBackend(QAuthApp *parent);
+    Prompt detectMessage(const struct pam_message *msg);
+    Request guessRequest(const struct pam_message *msg, bool *failed);
+    Request formatRequest(int n, const struct pam_message **msg, bool *failed);
+    void handleResponse(int n, const struct pam_message **msg, struct pam_response *aresp, const Request &response, bool *failed);
     int converse(int n, const struct pam_message **msg, struct pam_response **resp);
 
 public slots:
@@ -43,7 +48,8 @@ public slots:
     virtual QString userName();
 
 private:
-    PamHandle *m_pam;
+    PamHandle *m_pam { nullptr };
+    Request m_cachedRequest { };
 };
 
 #endif // PAMBACKEND_H
