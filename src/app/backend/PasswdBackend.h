@@ -18,13 +18,24 @@
  *
  */
 
-#ifndef PASSWDBACKEND_H
+#if !defined(PASSWDBACKEND_H) && !defined(PAM_FOUND)
 #define PASSWDBACKEND_H
 
 #include "../Backend.h"
 
 class PasswdBackend : public Backend {
-    
+    Q_OBJECT
+public:
+    PasswdBackend(QAuthApp *parent);
+
+public slots:
+    virtual bool start(const QString &user = QString());
+    virtual bool authenticate();
+
+    virtual QString userName();
+
+private:
+    QString m_user { };
 };
 
 #endif // PASSWDBACKEND_H

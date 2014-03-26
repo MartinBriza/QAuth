@@ -28,10 +28,13 @@
 
 class Prompt {
 public:
-    QAuthPrompt::Type type;
-    QByteArray response;
-    QString message;
-    bool hidden;
+    Prompt() {}
+    Prompt(QAuthPrompt::Type type, QString message, bool hidden)
+            : type(type), message(message), hidden(hidden) { }
+    QAuthPrompt::Type type { QAuthPrompt::NONE };
+    QByteArray response { };
+    QString message { };
+    bool hidden { false };
 };
 
 class Request {
@@ -87,7 +90,7 @@ inline QDataStream& operator<<(QDataStream &s, const Prompt &m) {
         s << qint32(m.type) << m.message << m.hidden << m.response;
     }
     else {
-        s << qint32(QAuthPrompt::NONE) << QString() << false << m.response;
+        s << qint32(m.type) << QString() << m.hidden << m.response;
     }
     return s;
 }

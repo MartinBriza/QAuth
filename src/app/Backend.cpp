@@ -47,11 +47,6 @@ void Backend::setAutologin(bool on) {
     m_autologin = on;
 }
 
-bool Backend::start(const QString &user) {
-    Q_UNUSED(user);
-    return false;
-}
-
 bool Backend::openSession() {
     struct passwd *pw;
     pw = getpwnam(qPrintable(qobject_cast<QAuthApp*>(parent())->user()));

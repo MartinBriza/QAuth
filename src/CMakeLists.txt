@@ -5,7 +5,6 @@ include_directories(${CMAKE_BINARY_DIR}/src/common)
 
 
 set(Helper_SRCS
-    app/backend/PasswdBackend.cpp
     app/Backend.cpp
     app/QAuthApp.cpp
     app/Session.cpp
@@ -16,6 +15,10 @@ if(PAM_FOUND)
     set(Helper_SRCS ${Helper_SRCS}
         app/backend/PamHandle.cpp
         app/backend/PamBackend.cpp
+    )
+else()
+    set(Helper_SRCS ${Helper_SRCS}
+        app/backend/PasswdBackend.cpp
     )
 endif()
 
