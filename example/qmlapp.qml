@@ -33,36 +33,6 @@ Rectangle {
         }
     }
 
-    Component {
-        id: promptDelegate
-        Rectangle {
-            anchors.horizontalCenter: parent.horizontalCenter
-            width: parent.width
-            Rectangle {
-                anchors.centerIn: parent
-                width: parent.width - 6
-                height: parent.height - 6
-                Text {
-                    id: promptMessage
-                    text: message
-                }
-                TextInput {
-                    anchors.right: parent.right
-                    id: promptInput
-                    width: parent.width - promptMessage.width - 8
-                    echoMode: hidden ? TextInput.Password : TextInput.Normal
-                    onAccepted: {
-                        response = text
-                    }
-                    Rectangle {
-                        z: -1
-                        anchors.fill: parent
-                        color: "#FFFFFF"
-                    }
-                }
-            }
-        }
-    }
 
     Row {
         id: statusRect
@@ -92,12 +62,30 @@ Rectangle {
         anchors.top: requestError.bottom
         anchors.horizontalCenter: parent.horizontalCenter
         width: parent.width - 20
-        height: parent.height - y + parent.y
+        height: parent.height - y
         ListView {
+            anchors.fill: parent
             id: promptList
-            delegate: promptDelegate
+            delegate: Row {
+                Text {
+                    id: promptMessage
+                    text: message
+                }
+                TextInput {
+                    id: promptInput
+                    width: 150
+                    echoMode: hidden ? TextInput.Password : TextInput.Normal
+                    onAccepted: {
+                        response = text
+                    }
+                    Rectangle {
+                        z: -1
+                        anchors.fill: promptInput
+                        color: "white"
+                    }
+                }
+            }
             model: auth.request.prompts
-            width: parent.width
         }
     }
 

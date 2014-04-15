@@ -99,14 +99,14 @@ void PamData::insertPrompt(const struct pam_message* msg, bool predict) {
     Prompt &p = findPrompt(msg);
     if (p.valid()) {
         p.message = msg->msg;
-        if (!p.response.isEmpty())
+        if (p.response.isEmpty())
             m_currentRequest.prompts.append(p);
     }
     else {
         if (predict) {
-            if (p.type == QAuthPrompt::LOGIN_USER)
+            if (detectPrompt(msg) == QAuthPrompt::LOGIN_USER)
                 m_currentRequest = Request(loginRequest);
-            else if (p.type == QAuthPrompt::CHANGE_CURRENT)
+            else if (detectPrompt(msg) == QAuthPrompt::CHANGE_CURRENT)
                 m_currentRequest = Request(changePassRequest);
             m_prompts.append(m_currentRequest.prompts);
         }
@@ -136,15 +136,19 @@ const Request& PamData::getRequest() const {
 void PamData::completeRequest(const Request& request) {
     m_currentRequest.clear();
     for (const Prompt &newPrompt : request.prompts) {
+        bool found = false;
         for (Prompt &oldPrompt : m_prompts) {
             // if they are the same, save the response
             if (oldPrompt.type == newPrompt.type &&
                 oldPrompt.message == newPrompt.message &&
                 oldPrompt.hidden == newPrompt.hidden) {
                 oldPrompt.response = newPrompt.response;
+                found = true;
                 break;
             }
         }
+        if (!found)
+            m_prompts.append(newPrompt);
     }
 }
 
