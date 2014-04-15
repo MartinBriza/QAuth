@@ -29,15 +29,36 @@
 #include <security/pam_appl.h>
 
 class PamHandle;
+class PamBackend;
+
+class PamData {
+public:
+    PamData(PamBackend *parent);
+
+    void insertPrompt(const struct pam_message *msg, bool predict = true);
+    void insertInfo(const struct pam_message *msg);
+
+    const Request& getRequest() const;
+    void completeRequest(const Request& request);
+
+    const QByteArray& getResponse(const struct pam_message *msg) const;
+
+private:
+    QAuthPrompt::Type detectPrompt(const struct pam_message *msg) const;
+
+    const Prompt& findPrompt(const struct pam_message *msg) const;
+    Prompt& findPrompt(const struct pam_message *msg);
+
+    PamBackend *m_parent { nullptr };
+    QList<Prompt> m_prompts { };
+    Request m_currentRequest { };
+};
+
 class PamBackend : public Backend
 {
     Q_OBJECT
 public:
     explicit PamBackend(QAuthApp *parent);
-    Prompt detectMessage(const struct pam_message *msg);
-    Request guessRequest(const struct pam_message *msg, bool *failed);
-    Request formatRequest(int n, const struct pam_message **msg, bool *failed);
-    void handleResponse(int n, const struct pam_message **msg, struct pam_response *aresp, const Request &response, bool *failed);
     int converse(int n, const struct pam_message **msg, struct pam_response **resp);
 
 public slots:
@@ -48,8 +69,8 @@ public slots:
     virtual QString userName();
 
 private:
+    PamData *m_data { nullptr };
     PamHandle *m_pam { nullptr };
-    Request m_cachedRequest { };
 };
 
 #endif // PAMBACKEND_H

@@ -54,7 +54,6 @@ class Request;
  */
 class QAuthRequest : public QObject {
     Q_OBJECT
-    Q_PROPERTY(QString info READ info CONSTANT)
 #if QT_VERSION >= 0x050000
     Q_PROPERTY(QQmlListProperty<QAuthPrompt> prompts READ promptsDecl NOTIFY promptsChanged)
 #else
@@ -62,10 +61,6 @@ class QAuthRequest : public QObject {
 #endif
     Q_PROPERTY(bool finishAutomatically READ finishAutomatically WRITE setFinishAutomatically NOTIFY finishAutomaticallyChanged)
 public:
-    /**
-     * @return information message from the stack
-     */
-    QString info() const;
     /**
      * @return list of the contained prompts
      */

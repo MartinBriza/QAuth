@@ -154,6 +154,13 @@ Q_SIGNALS:
      */
     void error(QString message);
 
+    /**
+     * Information from the underlying stack is to be presented to the user
+     *
+     * @param message message to be displayed to the user
+     */
+    void info(QString message);
+
 private:
     class Private;
     class SocketServer;

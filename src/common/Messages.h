@@ -53,20 +53,21 @@ public:
 class Request {
 public:
     Request() { }
-    Request(QString info, QList<Prompt> prompts)
-            : info(info), prompts(prompts) { }
+    Request(QList<Prompt> prompts)
+            : prompts(prompts) { }
     Request(const Request &o)
-            : info(o.info), prompts(o.prompts) { }
+            : prompts(o.prompts) { }
     Request& operator=(const Request &o) {
-        info = o.info;
         prompts = QList<Prompt>(o.prompts);
         return *this;
     }
     bool valid() const {
-        return !(info.isEmpty() && prompts.isEmpty());
+        return !(prompts.isEmpty());
+    }
+    void clear() {
+        prompts.clear();
     }
 
-    QString info { };
     QList<Prompt> prompts { };
 };
 
@@ -74,6 +75,7 @@ enum Msg {
     MSG_UNKNOWN = 0,
     HELLO = 1,
     ERROR,
+    INFO,
     REQUEST,
     AUTHENTICATED,
     SESSION_STATUS,
@@ -113,12 +115,7 @@ inline QDataStream& operator>>(QDataStream &s, QProcessEnvironment &m) {
 }
 
 inline QDataStream& operator<<(QDataStream &s, const Prompt &m) {
-    if (m.response.isEmpty()) {
-        s << qint32(m.type) << m.message << m.hidden << m.response;
-    }
-    else {
-        s << qint32(m.type) << QString() << m.hidden << m.response;
-    }
+    s << qint32(m.type) << m.message << m.hidden << m.response;
     return s;
 }
 
@@ -131,14 +128,13 @@ inline QDataStream& operator>>(QDataStream &s, Prompt &m) {
     m.type = QAuthPrompt::Type(type);
     m.message = message;
     m.hidden = hidden;
-    if (!response.isEmpty())
-        m.response = response;
+    m.response = response;
     return s;
 }
 
 inline QDataStream& operator<<(QDataStream &s, const Request &m) {
     qint32 length = m.prompts.length();
-    s << m.info << length;
+    s << length;
     Q_FOREACH(Prompt p, m.prompts) {
         s << p;
     }
@@ -146,10 +142,9 @@ inline QDataStream& operator<<(QDataStream &s, const Request &m) {
 }
 
 inline QDataStream& operator>>(QDataStream &s, Request &m) {
-    QString info;
     QList<Prompt> prompts;
     qint32 length;
-    s >> info >> length;
+    s >> length;
     for (int i = 0; i < length; i++) {
         Prompt p;
         s >> p;
@@ -159,7 +154,6 @@ inline QDataStream& operator>>(QDataStream &s, Request &m) {
         s.setStatus(QDataStream::ReadCorruptData);
         return s;
     }
-    m.info = info;
     m.prompts = prompts;
     return s;
 }

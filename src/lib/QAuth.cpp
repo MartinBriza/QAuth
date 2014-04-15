@@ -134,7 +134,13 @@ void QAuth::Private::dataPending() {
         case ERROR: {
             QString message;
             str >> message;
-            auth->error(message);
+            Q_EMIT auth->error(message);
+            break;
+        }
+        case INFO: {
+            QString message;
+            str >> message;
+            Q_EMIT auth->info(message);
             break;
         }
         case REQUEST: {

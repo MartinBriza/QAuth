@@ -29,7 +29,6 @@ public slots:
     void responseChanged();
 public:
     Private(QObject *parent);
-    QString info { };
     QList<QAuthPrompt*> prompts { };
     bool finishAutomatically { false };
     bool finished { true };
@@ -54,9 +53,7 @@ QAuthRequest::QAuthRequest(QAuth *parent)
 void QAuthRequest::setRequest(const Request *request) {
     QList<QAuthPrompt*> promptsCopy(d->prompts);
     d->prompts.clear();
-    d->info.clear();
     if (request != nullptr) {
-        d->info = request->info;
         Q_FOREACH (const Prompt& p, request->prompts) {
             QAuthPrompt *qap = new QAuthPrompt(&p, this);
             d->prompts << qap;
@@ -69,10 +66,6 @@ void QAuthRequest::setRequest(const Request *request) {
     if (request == nullptr) {
         qDeleteAll(promptsCopy);
     }
-}
-
-QString QAuthRequest::info() const {
-    return d->info;
 }
 
 QList<QAuthPrompt*> QAuthRequest::prompts() {
@@ -109,7 +102,6 @@ void QAuthRequest::setFinishAutomatically(bool value) {
 
 Request QAuthRequest::request() const {
     Request r;
-    r.info = d->info;
     Q_FOREACH (const QAuthPrompt* qap, d->prompts) {
         Prompt p;
         p.hidden = qap->hidden();

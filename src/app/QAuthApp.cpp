@@ -133,6 +133,13 @@ void QAuthApp::doAuth() {
     return;
 }
 
+void QAuthApp::info(const QString& message) {
+    SafeDataStream str(m_socket);
+    str << Msg::INFO << message;
+    str.send();
+    m_socket->waitForBytesWritten();
+}
+
 void QAuthApp::error(const QString& message) {
     SafeDataStream str(m_socket);
     str << Msg::ERROR << message;

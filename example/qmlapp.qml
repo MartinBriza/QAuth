@@ -18,6 +18,9 @@ Rectangle {
             if (request.prompts.length == 0)
                 request.done()
         }
+        onInfo: {
+            requestInfo.text = message
+        }
         onError: {
             requestError.text = message
         }
@@ -77,12 +80,11 @@ Rectangle {
         id: requestInfo
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: statusRect.bottom
-        text: auth.request.info
     }
     Text {
+        id: requestError
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: requestInfo.bottom
-        id: requestError
     }
 
     Rectangle {
