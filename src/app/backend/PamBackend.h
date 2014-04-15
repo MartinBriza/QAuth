@@ -33,7 +33,7 @@ class PamBackend;
 
 class PamData {
 public:
-    PamData(PamBackend *parent);
+    PamData();
 
     void insertPrompt(const struct pam_message *msg, bool predict = true);
     void insertInfo(const struct pam_message *msg);
@@ -49,7 +49,6 @@ private:
     const Prompt& findPrompt(const struct pam_message *msg) const;
     Prompt& findPrompt(const struct pam_message *msg);
 
-    PamBackend *m_parent { nullptr };
     QList<Prompt> m_prompts { };
     Request m_currentRequest { };
 };

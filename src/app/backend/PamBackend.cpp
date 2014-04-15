@@ -44,9 +44,7 @@ static Request changePassRequest {
 
 static Prompt invalidPrompt {};
 
-PamData::PamData(PamBackend* parent){
-    
-}
+PamData::PamData() { }
 
 QAuthPrompt::Type PamData::detectPrompt(const struct pam_message* msg) const {
     if (msg->msg_style == PAM_PROMPT_ECHO_OFF) {
@@ -155,7 +153,7 @@ void PamData::completeRequest(const Request& request) {
 
 PamBackend::PamBackend(QAuthApp *parent)
         : Backend(parent)
-        , m_data(new PamData(this))
+        , m_data(new PamData())
         , m_pam(new PamHandle(this)) {
 }
 
@@ -221,13 +219,13 @@ int PamBackend::converse(int n, const struct pam_message **msg, struct pam_respo
                 m_data->insertPrompt(msg[i], n == 1);
                 break;
             case PAM_ERROR_MSG:
-                m_app->error(QString(msg[i]->msg));
+                m_app->error(msg[i]->msg);
                 break;
             case PAM_TEXT_INFO:
                 // if there's only the info message, let's predict the prompts too
                 if (n == 1)
                     m_data->insertInfo(msg[i]);
-                m_app->info(QString(msg[i]->msg));
+                m_app->info(msg[i]->msg);
                 break;
             default:
                 break;
