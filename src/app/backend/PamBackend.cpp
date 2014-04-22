@@ -98,6 +98,10 @@ Prompt& PamData::findPrompt(const struct pam_message* msg) {
 void PamData::insertPrompt(const struct pam_message* msg, bool predict) {
     Prompt &p = findPrompt(msg);
     if (p.valid()) {
+        for (const Prompt &stored : m_currentRequest.prompts) {
+            if (stored.type == p.type && stored.message == p.message)
+                return;
+        }
         p.message = msg->msg;
         if (p.response.isEmpty())
             m_currentRequest.prompts.append(p);
