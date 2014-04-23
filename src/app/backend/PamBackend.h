@@ -41,7 +41,7 @@ public:
     const Request& getRequest() const;
     void completeRequest(const Request& request);
 
-    const QByteArray& getResponse(const struct pam_message *msg) const;
+    QByteArray getResponse(const struct pam_message *msg);
 
 private:
     QAuthPrompt::Type detectPrompt(const struct pam_message *msg) const;

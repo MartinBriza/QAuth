@@ -42,6 +42,8 @@ static Request changePassRequest {
     }
 };
 
+static Request invalidRequest { {} };
+
 static Prompt invalidPrompt {};
 
 PamData::PamData() { }
@@ -106,7 +108,7 @@ void PamData::insertPrompt(const struct pam_message* msg, bool predict) {
         if (p.response.isEmpty())
             m_currentRequest.prompts.append(p);
     }
-    else {
+    else if (!m_currentRequest.valid()) {
         if (predict) {
             if (detectPrompt(msg) == QAuthPrompt::LOGIN_USER)
                 m_currentRequest = Request(loginRequest);
@@ -129,12 +131,17 @@ void PamData::insertInfo(const struct pam_message* msg) {
     }
 }
 
-const QByteArray& PamData::getResponse(const struct pam_message* msg) const {
-    return findPrompt(msg).response;
+QByteArray PamData::getResponse(const struct pam_message* msg) {
+    QByteArray response = findPrompt(msg).response;
+    m_currentRequest.prompts.removeOne(findPrompt(msg));
+    return response;
 }
 
 const Request& PamData::getRequest() const {
-    return m_currentRequest;
+    for (const Prompt &p : m_currentRequest.prompts)
+        if (p.response.isEmpty())
+            return m_currentRequest;
+    return invalidRequest;
 }
 
 void PamData::completeRequest(const Request& request) {
