@@ -31,6 +31,7 @@ public:
     CheckPassApp(int& argc, char** argv);
     virtual ~CheckPassApp();
 private:
+    void setInput(bool visible);
     QAuth *m_auth;
 private slots:
     void handleResult(bool status);

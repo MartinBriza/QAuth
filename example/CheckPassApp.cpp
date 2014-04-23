@@ -42,37 +42,47 @@ CheckPassApp::~CheckPassApp() {
 
 }
 
+void CheckPassApp::setInput(bool visible) {
+    static bool initialized = false;
+    static struct termio tty;
+    static unsigned short flags;
+    if (!visible) {
+        ioctl(fileno(stdin), TCGETA, &tty);
+        flags = tty.c_lflag;
+        tty.c_lflag &= ~(ECHO | ECHOE | ECHOK | ECHONL);
+        ioctl(fileno(stdin), TCSETAF, &tty);
+        initialized = true;
+    }
+    else if (initialized) {
+        tty.c_lflag = flags;
+        ioctl(fileno(stdin), TCSETAW, &tty);
+        fputc('\n', stdout);
+    }
+}
+
 void CheckPassApp::displayError(QString message) {
     std::cerr << "Error: " << message.toStdString() << std::endl;
 }
 
 void CheckPassApp::handleResult(bool status) {
+    setInput(true);
     exit(!status);
 }
 
 void CheckPassApp::handleRequest() {
-    struct termio tty;
-    unsigned short flags;
 
     Q_FOREACH (QAuthPrompt *p, m_auth->request()->prompts()) {
         std::string response;
         std::cout << "Prompt: " << p->message().toStdString();
 
-        if (p->hidden()) {
-            ioctl(fileno(stdin), TCGETA, &tty);
-            flags = tty.c_lflag;
-            tty.c_lflag &= ~(ECHO | ECHOE | ECHOK | ECHONL);
-            ioctl(fileno(stdin), TCSETAF, &tty);
-        }
+        if (p->hidden())
+            setInput(false);
 
         std::cin >> response;
         p->setResponse(response.c_str());
 
-        if (p->hidden()) {
-            tty.c_lflag = flags;
-            ioctl(fileno(stdin), TCSETAW, &tty);
-            fputc('\n', stdout);
-        }
+        if (p->hidden())
+            setInput(true);
     }
 }
 
