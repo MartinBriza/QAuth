@@ -48,11 +48,18 @@ QString Session::path() const {
     return m_path;
 }
 
+void Session::bail(int status) {
+    emit finished(status, QProcess::NormalExit);
+    exit(status);
+}
+
 void Session::setupChildProcess() {
     struct passwd *pw = getpwnam(qobject_cast<QAuthApp*>(parent())->user().toLocal8Bit());
-    setgid(pw->pw_gid);
+    if (setgid(pw->pw_gid) != 0)
+        bail(2);
     initgroups(pw->pw_name, pw->pw_gid);
-    setuid(pw->pw_uid);
+    if (setuid(pw->pw_uid) != 0)
+        bail(2);
     chdir(pw->pw_dir);
 }
 
