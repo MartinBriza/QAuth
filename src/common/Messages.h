@@ -33,6 +33,9 @@ public:
             : type(type), message(message), hidden(hidden) { }
     Prompt(const Prompt &o)
             : type(o.type), response(o.response), message(o.message), hidden(o.hidden) { }
+    ~Prompt() {
+        clear();
+    }
     Prompt& operator=(const Prompt &o) {
         type = o.type;
         response = o.response;
@@ -40,8 +43,19 @@ public:
         hidden = o.hidden;
         return *this;
     }
+    bool operator==(const Prompt &o) const {
+        return type == o.type && response == o.response && message == o.message && hidden == o.hidden;
+    }
     bool valid() const {
         return !(type == QAuthPrompt::NONE && response.isEmpty() && message.isEmpty());
+    }
+    void clear() {
+        type = QAuthPrompt::NONE;
+        // overwrite the whole thing with zeroes before clearing
+        memset(response.data(), 0, response.length());
+        response.clear();
+        message.clear();
+        hidden = false;
     }
 
     QAuthPrompt::Type type { QAuthPrompt::NONE };
@@ -60,6 +74,9 @@ public:
     Request& operator=(const Request &o) {
         prompts = QList<Prompt>(o.prompts);
         return *this;
+    }
+    bool operator==(const Request &o) const {
+        return prompts == o.prompts;
     }
     bool valid() const {
         return !(prompts.isEmpty());
