@@ -155,13 +155,13 @@ void QAuth::Private::dataPending() {
             if (!user.isEmpty()) {
                 auth->setUser(user);
                 Q_EMIT auth->authentication(user, true);
+                str.reset();
+                str << AUTHENTICATED << environment;
+                str.send();
             }
             else {
                 Q_EMIT auth->authentication(user, false);
             }
-            str.reset();
-            str << AUTHENTICATED << environment;
-            str.send();
             break;
         }
         case SESSION_STATUS: {

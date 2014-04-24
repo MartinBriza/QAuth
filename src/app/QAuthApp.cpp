@@ -168,6 +168,8 @@ QProcessEnvironment QAuthApp::authenticated(const QString &user) {
     SafeDataStream str(m_socket);
     str << Msg::AUTHENTICATED << user;
     str.send();
+    if (user.isEmpty())
+        return response;
     str.receive();
     str >> m >> response;
     if (m != AUTHENTICATED) {
