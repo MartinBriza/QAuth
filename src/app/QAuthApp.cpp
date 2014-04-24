@@ -148,7 +148,7 @@ void QAuthApp::error(const QString& message) {
 }
 
 Request QAuthApp::request(const Request& request) {
-    Msg m;
+    Msg m = Msg::MSG_UNKNOWN;
     Request response;
     SafeDataStream str(m_socket);
     str << Msg::REQUEST << request;
@@ -163,7 +163,7 @@ Request QAuthApp::request(const Request& request) {
 }
 
 QProcessEnvironment QAuthApp::authenticated(const QString &user) {
-    Msg m;
+    Msg m = Msg::MSG_UNKNOWN;
     QProcessEnvironment response;
     SafeDataStream str(m_socket);
     str << Msg::AUTHENTICATED << user;
@@ -178,7 +178,7 @@ QProcessEnvironment QAuthApp::authenticated(const QString &user) {
 }
 
 void QAuthApp::sessionOpened(bool success) {
-    Msg m;
+    Msg m = Msg::MSG_UNKNOWN;
     SafeDataStream str(m_socket);
     str << Msg::SESSION_STATUS << success;
     str.send();

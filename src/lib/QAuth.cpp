@@ -38,7 +38,7 @@
 class QAuth::SocketServer : public QLocalServer {
     Q_OBJECT
 public slots:
-    void incomingConnection();
+    void handleNewConnection();
 public:
     static SocketServer *instance();
 
@@ -78,12 +78,12 @@ qint64 QAuth::Private::lastId = 1;
 
 QAuth::SocketServer::SocketServer()
         : QLocalServer() {
-    connect(this, SIGNAL(newConnection()), this, SLOT(incomingConnection()));
+    connect(this, SIGNAL(newConnection()), this, SLOT(handleNewConnection()));
 }
 
-void QAuth::SocketServer::incomingConnection()  {
+void QAuth::SocketServer::handleNewConnection()  {
     while (hasPendingConnections()) {
-        Msg m;
+        Msg m = Msg::MSG_UNKNOWN;
         qint64 id;
         QLocalSocket *socket = nextPendingConnection();
         SafeDataStream str(socket);
