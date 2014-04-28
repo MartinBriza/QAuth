@@ -42,6 +42,12 @@ static Request changePassRequest {
     }
 };
 
+static Request changePassNoOldRequest {
+    {   { QAuthPrompt::CHANGE_NEW, "New password: ", true },
+        { QAuthPrompt::CHANGE_REPEAT, "Retype new password: ", true }
+    }
+};
+
 static Request invalidRequest { {} };
 
 static Prompt invalidPrompt {};
@@ -128,6 +134,9 @@ bool PamData::insertPrompt(const struct pam_message* msg, bool predict) {
             case QAuthPrompt::CHANGE_CURRENT:
                 m_currentRequest = Request(changePassRequest);
                 return true;
+            case QAuthPrompt::CHANGE_NEW:
+                m_currentRequest = Request(changePassNoOldRequest);
+                return true;
             default:
                 break;
         }
@@ -149,7 +158,9 @@ bool PamData::insertInfo(const struct pam_message* msg) {
 
 QByteArray PamData::getResponse(const struct pam_message* msg) {
     QByteArray response = findPrompt(msg).response;
-    qDebug() << m_currentRequest.prompts.removeOne(findPrompt(msg));
+    m_currentRequest.prompts.removeOne(findPrompt(msg));
+    if (m_currentRequest.prompts.length() == 0)
+        m_sent = false;
     return response;
 }
 
@@ -285,7 +296,7 @@ int PamBackend::converse(int n, const struct pam_message **msg, struct pam_respo
     }
 
     for (int i = 0; i < n; i++) {
-        const QByteArray &response = m_data->getResponse(msg[i]);
+        QByteArray response = m_data->getResponse(msg[i]);
 
         resp[i]->resp = (char *) malloc(response.length() + 1);
         // on error, get rid of everything
