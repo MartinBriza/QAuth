@@ -103,6 +103,9 @@ Prompt& PamData::findPrompt(const struct pam_message* msg) {
     return invalidPrompt;
 }
 
+/*
+ * Expects an empty prompt list if the previous request has been processed
+ */
 bool PamData::insertPrompt(const struct pam_message* msg, bool predict) {
     Prompt &p = findPrompt(msg);
 
@@ -156,6 +159,9 @@ bool PamData::insertInfo(const struct pam_message* msg) {
     return false;
 }
 
+/*
+ * Destroys the prompt with that response
+ */
 QByteArray PamData::getResponse(const struct pam_message* msg) {
     QByteArray response = findPrompt(msg).response;
     m_currentRequest.prompts.removeOne(findPrompt(msg));
@@ -173,7 +179,7 @@ const Request& PamData::getRequest() const {
 
 void PamData::completeRequest(const Request& request) {
     if (request.prompts.length() != m_currentRequest.prompts.length()) {
-        qWarning() << "Different request/response list length, ignoring";
+        qWarning() << " AUTH: PAM: Different request/response list length, ignoring";
         return;
     }
 
@@ -181,7 +187,7 @@ void PamData::completeRequest(const Request& request) {
         if (request.prompts[i].type != m_currentRequest.prompts[i].type
             || request.prompts[i].message != m_currentRequest.prompts[i].message
             || request.prompts[i].hidden != m_currentRequest.prompts[i].hidden) {
-            qWarning() << "Order or type of the messages doesn't match, ignoring";
+            qWarning() << " AUTH: PAM: Order or type of the messages doesn't match, ignoring";
             return;
         }
     }
