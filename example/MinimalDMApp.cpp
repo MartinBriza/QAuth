@@ -32,13 +32,13 @@ MinimalDMApp::MinimalDMApp(int& argc, char** argv)
         , m_displayServer(new QProcess(this)) {
     m_auth->setVerbose(true);
     m_auth->setAutologin(true);
+    m_auth->setUser("root");
     m_auth->setSession("/usr/bin/lxsession");
     m_auth->insertEnvironment("PATH", "/bin:/usr/bin:/usr/local/bin:/usr/local/sbin:/usr/sbin");
     m_auth->request()->setFinishAutomatically(true);
 
     connect(m_displayServer, SIGNAL(started()), m_auth, SLOT(start()));
-    connect(m_auth, SIGNAL(finished(int)), this, SLOT(handleResult(int)));
-    connect(m_auth, SIGNAL(requestChanged()), this, SLOT(handleRequest()));
+    connect(m_auth, SIGNAL(finished(bool)), this, SLOT(handleResult(bool)));
 
     QTimer::singleShot(0, this, SLOT(startX()));
 }
@@ -47,14 +47,8 @@ MinimalDMApp::~MinimalDMApp() {
 
 }
 
-void MinimalDMApp::handleResult(int code) {
-    exit(code);
-}
-
-void MinimalDMApp::handleRequest() {
-    Q_FOREACH (QAuthPrompt *p, m_auth->request()->prompts()) {
-        p->setResponse("root"); // very safe to autologin as root, eh?
-    }
+void MinimalDMApp::handleResult(bool success) {
+    exit(!success);
 }
 
 void MinimalDMApp::startX() {
