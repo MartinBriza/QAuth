@@ -1,24 +1,18 @@
-Doesn't support much right now... I mean, it starts, it even authenticates... We'll see about the rest
-
-The code's pretty messy but still good compared to my other WIP projects
+Qt user authentication library
 
 TODO:
 
-* finish the API
+* PAM backend seems to be a bit slow when opening a session
 
-* clean the messages
-
-* passwd backend
-
-* of course there's more... i'm commiting just to have it somewhere... TBD
+* test and release
 
 ### Current status
 
 Working, it's possible to use the lib for an actual application.
 
-API not stable, I don't even bother to use proper sonames so far
+API stabilized, release coming soon
 
-Not sure what to do about the stupid PAM prompts and how to present them
+PAM prompts are predicted and sent in batches
 
 ### Examples
 
@@ -28,4 +22,4 @@ minimaldm - DM that just logs a user into some desktop session... both values ar
 
 checkpass - PAM conversation in the terminal
 
-qmlapp - PAM conversation in an ugly QML application
+qmlapp - PAM conversation in an ugly QML application with horrible user experience (you have to press Return AND click on all input boxes)
