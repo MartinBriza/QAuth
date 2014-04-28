@@ -30,7 +30,7 @@
 #include <pwd.h>
 
 Backend::Backend(QAuthApp* parent)
-        : QObject()
+        : QObject(parent)
         , m_app(parent) {
 }
 
