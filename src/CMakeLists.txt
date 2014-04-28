@@ -45,6 +45,7 @@ set(libQAuth_SRCS
 )
 
 add_library(qauth SHARED ${libQAuth_SRCS})
+set_target_properties(qauth PROPERTIES SOVERSION ${QAUTH_VERSION_X} VERSION ${QAUTH_VERSION_STRING})
 if (USE_QT5)
     qt5_use_modules(qauth Core Network Qml)
 else()

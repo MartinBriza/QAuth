@@ -4,6 +4,11 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
+set(QAUTH_VERSION_X 0)
+set(QAUTH_VERSION_Y 1)
+set(QAUTH_VERSION_Z 0)
+set(QAUTH_VERSION_STRING "${QAUTH_VERSION_X}.${QAUTH_VERSION_Y}.${QAUTH_VERSION_Z}")
+
 option(BUILD_EXAMPLES "Builds the example applications using the library" OFF)
 option(INSTALL_MINIMALDM "Installs the minimaldm example (you have to have it compiled, see BUILD_EXAMPLES)" OFF)
 option(USE_QT5 "Uses Qt5 to compile the library" OFF)
