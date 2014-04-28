@@ -128,8 +128,8 @@ void QAuthApp::doAuth() {
 
         sessionOpened(true);
     }
-
-    exit(AUTH_SUCCESS);
+    else
+        exit(AUTH_SUCCESS);
     return;
 }
 

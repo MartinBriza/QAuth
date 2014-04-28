@@ -36,7 +36,7 @@ Session::~Session() {
 }
 
 bool Session::start() {
-    QProcess::start("/etc/X11/xinit/XSession", {m_path});
+    QProcess::start("/etc/X11/xinit/Xsession", {m_path});
     return waitForStarted();
 }
 
