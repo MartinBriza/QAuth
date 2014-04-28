@@ -44,7 +44,7 @@
  *
  * Usage:
  *
- * Just construct, connect the signals (especially \ref request)
+ * Just construct, connect the signals (especially \ref requestChanged)
  * and fire up \ref start
  */
 class QAuth : public QObject {
@@ -64,8 +64,8 @@ public:
 
     bool autologin() const;
     bool verbose() const;
-    QString user() const;
-    QString session() const;
+    const QString &user() const;
+    const QString &session() const;
     QAuthRequest *request();
 
     /**

@@ -227,11 +227,11 @@ bool QAuth::autologin() const {
     return d->autologin;
 }
 
-QString QAuth::session() const {
+const QString &QAuth::session() const {
     return d->sessionPath;
 }
 
-QString QAuth::user() const {
+const QString &QAuth::user() const {
     return d->user;
 }
 
