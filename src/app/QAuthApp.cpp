@@ -93,6 +93,7 @@ void QAuthApp::setUp() {
     }
 
     connect(m_socket, SIGNAL(connected()), this, SLOT(doAuth()));
+    connect(m_session, SIGNAL(finished(int)), this, SLOT(sessionFinished(int)));
     m_socket->connectToServer(server, QIODevice::ReadWrite | QIODevice::Unbuffered);
 }
 
@@ -118,6 +119,7 @@ void QAuthApp::doAuth() {
     QProcessEnvironment env = authenticated(m_user);
 
     if (!m_session->path().isEmpty()) {
+        env.insert(m_session->processEnvironment());
         m_session->setProcessEnvironment(env);
 
         if (!m_backend->openSession()) {
@@ -131,6 +133,10 @@ void QAuthApp::doAuth() {
     else
         exit(AUTH_SUCCESS);
     return;
+}
+
+void QAuthApp::sessionFinished(int status) {
+    exit(status);
 }
 
 void QAuthApp::info(const QString& message) {

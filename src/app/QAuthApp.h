@@ -57,6 +57,8 @@ private slots:
     void setUp();
     void doAuth();
 
+    void sessionFinished(int status);
+
 private:
     qint64 m_id { -1 };
     Backend *m_backend { nullptr };
