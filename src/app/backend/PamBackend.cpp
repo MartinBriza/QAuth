@@ -252,6 +252,9 @@ bool PamBackend::openSession() {
         m_app->error(m_pam->errorString());
         return false;
     }
+    QProcessEnvironment env = m_pam->getEnv();
+    env.insert(m_app->session()->processEnvironment());
+    m_app->session()->setProcessEnvironment(env);
     return Backend::openSession();
 }
 
