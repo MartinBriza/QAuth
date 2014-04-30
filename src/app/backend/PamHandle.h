@@ -107,7 +107,7 @@ public:
     /**
      * pam_acct_mgmt - PAM account validation management
      *
-     * @note Automatically calls setCred if the password is expired
+     * @note Automatically calls \ref chAuthTok if the password is expired
      *
      * \param flags PAM flag(s)
      *
