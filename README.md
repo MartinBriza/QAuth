@@ -1,16 +1,18 @@
-Qt user authentication library
+Qt user authentication library.
+
+Library licensed under LGPLv2+, The help binary under GPLv2+.
 
 TODO:
 
-* PAM backend seems to be a bit slow when opening a session
+* test
 
-* test and release
+* user X sessions
 
 ### Current status
 
 Working, it's possible to use the lib for an actual application.
 
-API stabilized, release coming soon
+API somewhat stabilized
 
 PAM prompts are predicted and sent in batches
 

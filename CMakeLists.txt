@@ -6,7 +6,7 @@ set(CMAKE_AUTOMOC ON)
 
 set(QAUTH_VERSION_X 0)
 set(QAUTH_VERSION_Y 1)
-set(QAUTH_VERSION_Z 0)
+set(QAUTH_VERSION_Z 1)
 set(QAUTH_VERSION_STRING "${QAUTH_VERSION_X}.${QAUTH_VERSION_Y}.${QAUTH_VERSION_Z}")
 
 option(BUILD_EXAMPLES "Builds the example applications using the library" OFF)
