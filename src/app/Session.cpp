@@ -57,7 +57,8 @@ void Session::setupChildProcess() {
     struct passwd *pw = getpwnam(qobject_cast<QAuthApp*>(parent())->user().toLocal8Bit());
     if (setgid(pw->pw_gid) != 0)
         bail(2);
-    initgroups(pw->pw_name, pw->pw_gid);
+    if (initgroups(pw->pw_name, pw->pw_gid) != 0)
+        bail(2);
     if (setuid(pw->pw_uid) != 0)
         bail(2);
     chdir(pw->pw_dir);
