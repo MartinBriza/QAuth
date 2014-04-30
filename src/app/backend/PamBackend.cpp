@@ -205,6 +205,11 @@ PamBackend::PamBackend(QAuthApp *parent)
         , m_pam(new PamHandle(this)) {
 }
 
+PamBackend::~PamBackend() {
+    delete m_data;
+    delete m_pam;
+}
+
 bool PamBackend::start(const QString &user) {
     bool result;
 

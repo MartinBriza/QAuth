@@ -58,6 +58,7 @@ class PamBackend : public Backend
     Q_OBJECT
 public:
     explicit PamBackend(QAuthApp *parent);
+    virtual ~PamBackend();
     int converse(int n, const struct pam_message **msg, struct pam_response **resp);
 
 public slots:
