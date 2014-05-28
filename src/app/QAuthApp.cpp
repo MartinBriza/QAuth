@@ -139,16 +139,16 @@ void QAuthApp::sessionFinished(int status) {
     exit(status);
 }
 
-void QAuthApp::info(const QString& message) {
+void QAuthApp::info(const QString& message, QAuth::Info type) {
     SafeDataStream str(m_socket);
-    str << Msg::INFO << message;
+    str << Msg::INFO << message << type;
     str.send();
     m_socket->waitForBytesWritten();
 }
 
-void QAuthApp::error(const QString& message) {
+void QAuthApp::error(const QString& message, QAuth::Error type) {
     SafeDataStream str(m_socket);
-    str << Msg::ERROR << message;
+    str << Msg::ERROR << message << type;
     str.send();
     m_socket->waitForBytesWritten();
 }

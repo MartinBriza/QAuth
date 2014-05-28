@@ -113,6 +113,9 @@ QAuth::Private::Private(QAuth *parent)
         , child(new QProcess(this))
         , id(lastId++) {
     SocketServer::instance()->helpers[id] = this;
+    QProcessEnvironment env = child->processEnvironment();
+    env.insert("LANG", "C");
+    child->setProcessEnvironment(env);
     connect(child, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(childExited(int,QProcess::ExitStatus)));
     connect(child, SIGNAL(error(QProcess::ProcessError)), this, SLOT(childError(QProcess::ProcessError)));
     connect(request, SIGNAL(finished()), this, SLOT(requestFinished()));
@@ -133,14 +136,16 @@ void QAuth::Private::dataPending() {
     switch (m) {
         case ERROR: {
             QString message;
-            str >> message;
-            Q_EMIT auth->error(message);
+            Error type;
+            str >> message >> type;
+            Q_EMIT auth->error(message, type);
             break;
         }
         case INFO: {
             QString message;
-            str >> message;
-            Q_EMIT auth->info(message);
+            Info type;
+            str >> message >> type;
+            Q_EMIT auth->info(message, type);
             break;
         }
         case REQUEST: {
@@ -174,20 +179,20 @@ void QAuth::Private::dataPending() {
             break;
         }
         default: {
-            Q_EMIT auth->error(QString("QAuth: Unexpected value received: %1").arg(m));
+            Q_EMIT auth->error(QString("QAuth: Unexpected value received: %1").arg(m), ERROR_INTERNAL);
         }
     }
 }
 
 void QAuth::Private::childExited(int exitCode, QProcess::ExitStatus exitStatus) {
     if (exitStatus != QProcess::NormalExit)
-        Q_EMIT qobject_cast<QAuth*>(parent())->error(child->errorString());
+        Q_EMIT qobject_cast<QAuth*>(parent())->error(child->errorString(), ERROR_INTERNAL);
     Q_EMIT qobject_cast<QAuth*>(parent())->finished(!exitCode);
 }
 
 void QAuth::Private::childError(QProcess::ProcessError error) {
     Q_UNUSED(error);
-    Q_EMIT qobject_cast<QAuth*>(parent())->error(child->errorString());
+    Q_EMIT qobject_cast<QAuth*>(parent())->error(child->errorString(), ERROR_INTERNAL);
 }
 
 void QAuth::Private::requestFinished() {

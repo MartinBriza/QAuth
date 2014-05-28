@@ -60,6 +60,21 @@ public:
     explicit QAuth(QObject *parent);
     ~QAuth();
 
+    enum Info {
+        INFO_NONE = 0,
+        INFO_UNKNOWN,
+        INFO_PASS_CHANGE_REQUIRED,
+        _INFO_LAST
+    };
+
+    enum Error {
+        ERROR_NONE = 0,
+        ERROR_UNKNOWN,
+        ERROR_AUTHENTICATION,
+        ERROR_INTERNAL,
+        _ERROR_LAST
+    };
+
     static void registerTypes();
 
     bool autologin() const;
@@ -152,14 +167,14 @@ Q_SIGNALS:
      *
      * @param message message to be displayed to the user
      */
-    void error(QString message);
+    void error(QString message, QAuth::Error type);
 
     /**
      * Information from the underlying stack is to be presented to the user
      *
      * @param message message to be displayed to the user
      */
-    void info(QString message);
+    void info(QString message, QAuth::Info type);
 
 private:
     class Private;

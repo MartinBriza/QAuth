@@ -60,7 +60,7 @@ bool PasswdBackend::authenticate() {
 
     struct passwd *pw = getpwnam(qPrintable(m_user));
     if (!pw) {
-        m_app->error(QString("Wrong user/password combination"));
+        m_app->error(QString("Wrong user/password combination"), QAuth::ERROR_AUTHENTICATION);
         return false;
     }
 
@@ -78,7 +78,7 @@ bool PasswdBackend::authenticate() {
         return true;
     }
 
-    m_app->error(QString("Wrong user/password combination"));
+    m_app->error(QString("Wrong user/password combination"), QAuth::ERROR_AUTHENTICATION);
     return false;
 }
 

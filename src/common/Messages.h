@@ -116,6 +116,40 @@ inline QDataStream& operator>>(QDataStream &s, Msg &m) {
     return s;
 }
 
+inline QDataStream& operator<<(QDataStream &s, const QAuth::Error &m) {
+    s << qint32(m);
+    return s;
+}
+
+inline QDataStream& operator>>(QDataStream &s, QAuth::Error &m) {
+    // TODO seriously?
+    qint32 i;
+    s >> i;
+    if (i >= QAuth::_ERROR_LAST || i < QAuth::ERROR_NONE) {
+        s.setStatus(QDataStream::ReadCorruptData);
+        return s;
+    }
+    m = QAuth::Error(i);
+    return s;
+}
+
+inline QDataStream& operator<<(QDataStream &s, const QAuth::Info &m) {
+    s << qint32(m);
+    return s;
+}
+
+inline QDataStream& operator>>(QDataStream &s, QAuth::Info &m) {
+    // TODO seriously?
+    qint32 i;
+    s >> i;
+    if (i >= QAuth::_INFO_LAST || i < QAuth::INFO_NONE) {
+        s.setStatus(QDataStream::ReadCorruptData);
+        return s;
+    }
+    m = QAuth::Info(i);
+    return s;
+}
+
 inline QDataStream& operator<<(QDataStream &s, const QProcessEnvironment &m) {
     s << m.toStringList();
     return s;

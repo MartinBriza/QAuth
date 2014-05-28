@@ -36,7 +36,8 @@ private:
 private slots:
     void handleResult(bool status);
     void handleRequest();
-    void displayError(QString message);
+    void displayError(QString message, QAuth::Error type);
+    void displayInfo(QString message, QAuth::Info type);
 };
 
 #endif // CHECKPASSAPP_H

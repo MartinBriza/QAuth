@@ -36,7 +36,7 @@ public:
     PamData();
 
     bool insertPrompt(const struct pam_message *msg, bool predict = true);
-    bool insertInfo(const struct pam_message *msg);
+    QAuth::Info handleInfo(const struct pam_message *msg, bool predict);
 
     const Request& getRequest() const;
     void completeRequest(const Request& request);

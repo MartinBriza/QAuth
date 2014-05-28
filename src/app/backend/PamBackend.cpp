@@ -151,12 +151,13 @@ bool PamData::insertPrompt(const struct pam_message* msg, bool predict) {
     return true;
 }
 
-bool PamData::insertInfo(const struct pam_message* msg) {
+QAuth::Info PamData::handleInfo(const struct pam_message* msg, bool predict) {
     if (QString(msg->msg).indexOf(QRegExp("^Changing password for [^ ]+$"))) {
-        m_currentRequest = Request(changePassRequest);
-        return true;
+        if (predict)
+            m_currentRequest = Request(changePassRequest);
+        return QAuth::INFO_PASS_CHANGE_REQUIRED;
     }
-    return false;
+    return QAuth::INFO_UNKNOWN;
 }
 
 /*
@@ -221,18 +222,18 @@ bool PamBackend::start(const QString &user) {
         result = m_pam->start("qauth-login", user);
 
     if (!result)
-        m_app->error(m_pam->errorString());
+        m_app->error(m_pam->errorString(), QAuth::ERROR_INTERNAL);
 
     return result;
 }
 
 bool PamBackend::authenticate() {
     if (!m_pam->authenticate()) {
-        m_app->error(m_pam->errorString());
+        m_app->error(m_pam->errorString(), QAuth::ERROR_AUTHENTICATION);
         return false;
     }
     if (!m_pam->acctMgmt()) {
-        m_app->error(m_pam->errorString());
+        m_app->error(m_pam->errorString(), QAuth::ERROR_AUTHENTICATION);
         return false;
     }
     return true;
@@ -240,7 +241,7 @@ bool PamBackend::authenticate() {
 
 bool PamBackend::openSession() {
     if (!m_pam->setCred(PAM_ESTABLISH_CRED)) {
-        m_app->error(m_pam->errorString());
+        m_app->error(m_pam->errorString(), QAuth::ERROR_AUTHENTICATION);
         return false;
     }
     QString display = m_app->session()->processEnvironment().value("DISPLAY");
@@ -249,7 +250,7 @@ bool PamBackend::openSession() {
         m_pam->setItem(PAM_TTY, qPrintable(display));
     }
     if (!m_pam->openSession()) {
-        m_app->error(m_pam->errorString());
+        m_app->error(m_pam->errorString(), QAuth::ERROR_INTERNAL);
         return false;
     }
     QProcessEnvironment env = m_pam->getEnv();
@@ -277,13 +278,11 @@ int PamBackend::converse(int n, const struct pam_message **msg, struct pam_respo
                 newRequest = m_data->insertPrompt(msg[i], n == 1);
                 break;
             case PAM_ERROR_MSG:
-                m_app->error(msg[i]->msg);
+                m_app->error(msg[i]->msg, QAuth::ERROR_AUTHENTICATION);
                 break;
             case PAM_TEXT_INFO:
                 // if there's only the info message, let's predict the prompts too
-                if (n == 1)
-                    newRequest = m_data->insertInfo(msg[i]);
-                m_app->info(msg[i]->msg);
+                m_app->info(msg[i]->msg, m_data->handleInfo(msg[i], n == 1));
                 break;
             default:
                 break;

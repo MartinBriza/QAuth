@@ -33,7 +33,8 @@ CheckPassApp::CheckPassApp(int& argc, char** argv)
     m_auth->setVerbose(true);
     connect(m_auth, SIGNAL(finished(bool)), this, SLOT(handleResult(bool)));
     connect(m_auth, SIGNAL(requestChanged()), this, SLOT(handleRequest()));
-    connect(m_auth, SIGNAL(error(QString)), this, SLOT(displayError(QString)));
+    connect(m_auth, SIGNAL(error(QString,QAuth::Error)), this, SLOT(displayError(QString,QAuth::Error)));
+    connect(m_auth, SIGNAL(info(QString,QAuth::Info)), this, SLOT(displayInfo(QString,QAuth::Info)));
     m_auth->request()->setFinishAutomatically(true);
     m_auth->start();
 }
@@ -60,8 +61,12 @@ void CheckPassApp::setInput(bool visible) {
     }
 }
 
-void CheckPassApp::displayError(QString message) {
-    std::cerr << "Error: " << message.toStdString() << std::endl;
+void CheckPassApp::displayError(QString message, QAuth::Error type) {
+    std::cerr << "Error " << type << ": " << message.toStdString() << std::endl;
+}
+
+void CheckPassApp::displayInfo(QString message, QAuth::Info type) {
+    std::cerr << "Info " << type << ": " << message.toStdString() << std::endl;
 }
 
 void CheckPassApp::handleResult(bool status) {
