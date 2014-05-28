@@ -23,5 +23,6 @@
 
 #define QAUTH_HELPER_PATH "@LIBEXEC_INSTALL_DIR@/qauthhelper"
 #cmakedefine PAM_FOUND
+#define QAUTH_XSESSION_PATH "/etc/X11/xinit/Xsession"
 
 #endif // CONFIG_H

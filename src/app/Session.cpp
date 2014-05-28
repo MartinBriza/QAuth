@@ -18,6 +18,7 @@
  *
  */
 
+#include "config.h"
 #include "Session.h"
 #include "QAuthApp.h"
 
@@ -36,7 +37,7 @@ Session::~Session() {
 }
 
 bool Session::start() {
-    QProcess::start("/etc/X11/xinit/Xsession", {m_path});
+    QProcess::start(QAUTH_XSESSION_PATH, {m_path});
     return waitForStarted();
 }
 
