@@ -26,7 +26,7 @@
 #if QT_VERSION >= 0x050000
 # include <QtQml/QQmlListProperty>
 #else
-# include <QDeclarativeListProperty>
+# include <QtDeclarative/QDeclarativeListProperty>
 #endif
 
 class QAuth;

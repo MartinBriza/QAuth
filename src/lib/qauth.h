@@ -25,7 +25,7 @@
 #include "prompt.h"
 
 #include <QtCore/QObject>
-#include <QProcessEnvironment>
+#include <QtCore/QProcessEnvironment>
 
 /**
  * \brief

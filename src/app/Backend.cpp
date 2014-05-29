@@ -25,7 +25,7 @@
 #include "backend/PasswdBackend.h"
 #include "Session.h"
 
-#include <QProcessEnvironment>
+#include <QtCore/QProcessEnvironment>
 
 #include <pwd.h>
 

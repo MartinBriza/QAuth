@@ -22,8 +22,8 @@
 #define SESSION_H
 
 #include <QtCore/QObject>
-#include <QString>
-#include <QProcess>
+#include <QtCore/QString>
+#include <QtCore/QProcess>
 
 class QAuthApp;
 class Session : public QProcess

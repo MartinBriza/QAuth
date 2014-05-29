@@ -19,10 +19,12 @@
  */
 
 #include "MinimalDMApp.h"
+
+#include <QtCore/QDebug>
+#include <QtCore/QFile>
+#include <QtCore/QTimer>
 #include <QAuth>
-#include <QDebug>
-#include <QFile>
-#include <QTimer>
+
 #include <iostream>
 #include <string>
 

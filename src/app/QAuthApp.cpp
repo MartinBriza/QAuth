@@ -24,10 +24,10 @@
 #include "Session.h"
 #include "SafeDataStream.h"
 
-#include <QTimer>
-#include <QFile>
-#include <QLocalSocket>
-#include <QDebug>
+#include <QtCore/QTimer>
+#include <QtCore/QFile>
+#include <QtCore/QDebug>
+#include <QtNetwork/QLocalSocket>
 
 #include <iostream>
 #include <unistd.h>

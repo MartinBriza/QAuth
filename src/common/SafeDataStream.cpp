@@ -20,8 +20,7 @@
 
 #include "SafeDataStream.h"
 
-#include <QDebug>
-#include <QtGui/QApplication>
+#include <QtCore/QDebug>
 
 SafeDataStream::SafeDataStream(QIODevice* device)
         : QDataStream(&m_data, QIODevice::ReadWrite)

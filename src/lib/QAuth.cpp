@@ -23,9 +23,9 @@
 #include "SafeDataStream.h"
 #include "config.h"
 
-#include <QProcess>
-#include <QLocalServer>
-#include <QLocalSocket>
+#include <QtCore/QProcess>
+#include <QtNetwork/QLocalServer>
+#include <QtNetwork/QLocalSocket>
 
 #if QT_VERSION >= 0x050000
 # include <QtQml/QtQml>

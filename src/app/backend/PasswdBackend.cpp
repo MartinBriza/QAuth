@@ -23,7 +23,7 @@
 #include "Messages.h"
 #include "../QAuthApp.h"
 
-#include <QDebug>
+#include <QtCore/QDebug>
 
 #include <sys/types.h>
 #include <pwd.h>

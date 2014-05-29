@@ -20,7 +20,7 @@
 
 #include "QMLApp.h"
 
-#include <QFile>
+#include <QtCore/QFile>
 
 #if QT_VERSION >= 0x050000
 # include <QtQuick/QQuickView>

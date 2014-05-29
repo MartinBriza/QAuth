@@ -21,8 +21,8 @@
 #ifndef MESSAGES_H
 #define MESSAGES_H
 
-#include <QDataStream>
-#include <QProcessEnvironment>
+#include <QtCore/QDataStream>
+#include <QtCore/QProcessEnvironment>
 
 #include "lib/qauth.h"
 

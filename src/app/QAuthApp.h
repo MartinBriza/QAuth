@@ -22,7 +22,7 @@
 #define QAuth_H
 
 #include <QtCore/QCoreApplication>
-#include <QProcessEnvironment>
+#include <QtCore/QProcessEnvironment>
 
 #include "Messages.h"
 

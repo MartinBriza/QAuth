@@ -25,7 +25,7 @@
 #include "lib/qauth.h"
 
 #include <QtCore/QString>
-#include <QDebug>
+#include <QtCore/QDebug>
 
 #include <stdlib.h>
 
